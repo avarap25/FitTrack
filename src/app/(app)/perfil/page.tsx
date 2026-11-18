@@ -2,7 +2,9 @@
 import { useEffect, useState } from "react";
 import { Calculator, LogOut } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
-import { ErrorBox, Field, Notice, PageHeader, Spinner, Stat, cn } from "@/components/ui";
+import { ErrorBox, Field, Notice, PageHeader, Segmented, Spinner, Stat, cn } from "@/components/ui";
+import { applyTheme, getThemePref, type ThemePref } from "@/components/theme";
+import { DEFAULT_PET_NAMES, PET_ROLES, PetAvatar, usePetNames, type PetKind } from "@/components/Pets";
 import { fetchGoals, uid } from "@/lib/data";
 import { ACTIVITY_LEVELS, bmrMifflin, calorieFloor, energyBreakdown, suggestGoal } from "@/lib/nutrition";
 import { fmtDate } from "@/lib/stats";
@@ -19,6 +21,10 @@ export default function PerfilPage() {
   const [history, setHistory] = useState<NutritionGoal[]>([]);
   const [msg, setMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [theme, setTheme] = useState<ThemePref>("system");
+  const currentPets = usePetNames();
+  const [pets, setPets] = useState(currentPets);
+  useEffect(() => setTheme(getThemePref()), []);
 
   useEffect(() => {
     fetchGoals().then(setHistory).catch(() => {});
@@ -39,7 +45,7 @@ export default function PerfilPage() {
     const sb = supabaseBrowser();
     const { id: _id, ...fields } = p;
     const r1 = await sb.from("profiles").update(fields).eq("id", profile.id);
-    const r2 = await sb.from("user_preferences").upsert({ user_id: profile.id, allergies, dietary_preferences: diet, disliked_foods: disliked.split(",").map((s) => s.trim()).filter(Boolean) });
+    const r2 = await sb.from("user_preferences").upsert({ user_id: profile.id, allergies, dietary_preferences: diet, disliked_foods: disliked.split(",").map((s) => s.trim()).filter(Boolean), pet_names: Object.fromEntries(Object.entries(pets).map(([k, v]) => [k, String(v).trim().slice(0, 24) || DEFAULT_PET_NAMES[k as PetKind]])) });
     setBusy(null);
     if (r1.error || r2.error) return setMsg({ tone: "err", text: (r1.error ?? r2.error)!.message });
     setMsg({ tone: "ok", text: "Perfil guardado." });
@@ -66,9 +72,14 @@ export default function PerfilPage() {
   const toggle = (arr: string[], set: (v: string[]) => void, k: string) => set(arr.includes(k) ? arr.filter((x) => x !== k) : [...arr, k]);
 
   return (
-    <div className="space-y-4">
+    <div className="stagger space-y-4">
       <PageHeader kicker="Configuración" title="Perfil" right={<button className="btn-ghost py-1.5 text-xs" onClick={logout}><LogOut className="h-3.5 w-3.5" /> Salir</button>} />
       {msg && (msg.tone === "ok" ? <Notice tone="ok">{msg.text}</Notice> : <ErrorBox message={msg.text} />)}
+
+      <section className="card flex items-center justify-between">
+        <p className="text-[15px] font-medium">Apariencia</p>
+        <Segmented value={theme} onChange={(v) => { setTheme(v); applyTheme(v); }} options={[{ value: "system", label: "Auto" }, { value: "light", label: "Claro" }, { value: "dark", label: "Oscuro" }]} />
+      </section>
 
       <section className="card space-y-3">
         <p className="label">Datos personales</p>
@@ -112,16 +123,30 @@ export default function PerfilPage() {
       </section>
 
       <section className="card space-y-3">
+        <p className="serif text-[19px]">Tus guías</p>
+        <p className="text-[12px] text-muted">Ponles el nombre de tus perritos. Se guardan al presionar &quot;Guardar perfil&quot;.</p>
+        {(["scottie", "yorkie1", "yorkie2"] as PetKind[]).map((k) => (
+          <div key={k} className="flex items-center gap-3">
+            <PetAvatar kind={k} size={54} />
+            <div className="flex-1">
+              <input className="input py-2" value={pets[k]} maxLength={24} onChange={(e) => setPets({ ...pets, [k]: e.target.value })} aria-label={`Nombre de ${PET_ROLES[k]}`} />
+              <p className="mt-1 text-[11px] text-faint">{PET_ROLES[k]}</p>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section className="card space-y-3">
         <p className="label">Preferencias y restricciones</p>
         <div className="flex flex-wrap gap-2">
           {PREFERENCE_OPTIONS.map((o) => <button key={o.key} className={cn("chip", diet.includes(o.key) && "chip-on")} onClick={() => toggle(diet, setDiet, o.key)}>{o.label}</button>)}
         </div>
-        <p className="text-[11px] text-ink-400">Alergias / intolerancias (se excluyen de las recomendaciones):</p>
+        <p className="text-[11px] text-faint">Alergias / intolerancias (se excluyen de las recomendaciones):</p>
         <div className="flex flex-wrap gap-2">
           {ALLERGEN_OPTIONS.map((o) => <button key={o.key} className={cn("chip", allergies.includes(o.key) && "chip-on")} onClick={() => toggle(allergies, setAllergies, o.key)}>{o.label}</button>)}
         </div>
         <Field label="Alimentos que no te gustan" hint="Separados por comas"><input className="input" value={disliked} onChange={(ev) => setDisliked(ev.target.value)} placeholder="atún, brócoli" /></Field>
-        <button className="btn-primary w-full" onClick={saveProfile} disabled={busy === "perfil"}>{busy === "perfil" ? <Spinner className="text-ink-950" /> : "Guardar perfil"}</button>
+        <button className="btn-primary w-full" onClick={saveProfile} disabled={busy === "perfil"}>{busy === "perfil" ? <Spinner className="text-on-accent" /> : "Guardar perfil"}</button>
       </section>
 
       <section className="card space-y-3">
@@ -146,15 +171,15 @@ export default function PerfilPage() {
           <Field label="Carb g"><input className="input" type="number" value={g.carbs_g} onChange={(ev) => setG({ ...g, carbs_g: Number(ev.target.value) })} /></Field>
           <Field label="Grasa g"><input className="input" type="number" value={g.fat_g} onChange={(ev) => setG({ ...g, fat_g: Number(ev.target.value) })} /></Field>
         </div>
-        <p className={cn("text-[11px]", Math.abs(macroKcal - g.calories) > g.calories * 0.08 ? "text-carb" : "text-ink-400")}>
+        <p className={cn("text-[11px]", Math.abs(macroKcal - g.calories) > g.calories * 0.08 ? "text-carb" : "text-faint")}>
           Los macros suman {Math.round(macroKcal)} kcal ({macroKcal > g.calories ? "+" : ""}{Math.round(macroKcal - g.calories)} vs. objetivo). Proteína: {(g.protein_g / p.current_weight_kg).toFixed(1)} g/kg.
         </p>
-        <button className="btn-primary w-full" onClick={() => saveGoal(g.calories === sug.calories ? "calculado" : "manual")} disabled={busy === "meta"}>{busy === "meta" ? <Spinner className="text-ink-950" /> : "Guardar objetivo"}</button>
+        <button className="btn-primary w-full" onClick={() => saveGoal(g.calories === sug.calories ? "calculado" : "manual")} disabled={busy === "meta"}>{busy === "meta" ? <Spinner className="text-on-accent" /> : "Guardar objetivo"}</button>
         {history.length > 1 && (
-          <details className="text-xs text-ink-300">
+          <details className="text-xs text-muted">
             <summary className="cursor-pointer">Historial de objetivos</summary>
             <ul className="mt-2 space-y-1">
-              {history.map((h) => <li key={h.id}>{fmtDate(h.effective_from, { day: "numeric", month: "short", year: "2-digit" })}: {h.calories} kcal · P{h.protein_g} C{h.carbs_g} G{h.fat_g} <span className="text-ink-400">({h.origin})</span></li>)}
+              {history.map((h) => <li key={h.id}>{fmtDate(h.effective_from, { day: "numeric", month: "short", year: "2-digit" })}: {h.calories} kcal · P{h.protein_g} C{h.carbs_g} G{h.fat_g} <span className="text-faint">({h.origin})</span></li>)}
             </ul>
           </details>
         )}

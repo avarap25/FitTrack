@@ -50,8 +50,15 @@ export interface NutritionGoal {
   note: string | null;
 }
 
+export interface PetNames {
+  scottie: string;
+  yorkie1: string;
+  yorkie2: string;
+}
+
 export interface Preferences {
   user_id: string;
+  pet_names?: Partial<PetNames> | null;
   dietary_preferences: string[];
   allergies: string[];
   disliked_foods: string[];
@@ -168,6 +175,10 @@ export interface Workout {
   muscle_group: string;
   notes: string | null;
   duration_min: number | null;
+  kind: "fuerza" | "cardio";
+  activity: string | null;
+  intensity: "ligera" | "moderada" | "intensa" | null;
+  kcal_burned: number | null;
   workout_exercises: WorkoutExercise[];
 }
 

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { ErrorBox, Notice, Spinner } from "@/components/ui";
+import { PetAvatar } from "@/components/Pets";
 
 export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -34,11 +35,13 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center px-6">
       <div className="mb-10">
-        <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-lime-400 text-ink-950">
-          <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M4 12h16M6 8v8M18 8v8" /></svg>
+        <div className="mb-6 flex items-end">
+          <PetAvatar kind="yorkie1" size={64} ring={false} className="-mr-3" />
+          <PetAvatar kind="scottie" size={82} ring={false} className="relative z-10" />
+          <PetAvatar kind="yorkie2" size={58} ring={false} className="-ml-3" />
         </div>
-        <h1 className="h-display text-5xl leading-none">Fit<span className="text-lime-400">Track</span></h1>
-        <p className="mt-2 text-sm text-ink-300">Nutrición, entrenamiento y progreso en un solo lugar.</p>
+        <h1 className="h-display text-5xl leading-none">Fit<span className="italic text-accent">Track</span></h1>
+        <p className="mt-2 text-sm text-muted">Tu nutrición, tus entrenos y tu progreso, con tres guías peludos que te acompañan.</p>
       </div>
       <form onSubmit={submit} className="space-y-3">
         <input className="input" type="email" required autoComplete="email" placeholder="Correo" value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -46,10 +49,10 @@ export default function LoginPage() {
         {error && <ErrorBox message={error} />}
         {info && <Notice tone="ok">{info}</Notice>}
         <button className="btn-primary w-full py-3" disabled={busy}>
-          {busy ? <Spinner className="text-ink-950" /> : mode === "login" ? "Entrar" : "Crear cuenta"}
+          {busy ? <Spinner className="text-on-accent" /> : mode === "login" ? "Entrar" : "Crear cuenta"}
         </button>
       </form>
-      <button className="mt-4 text-sm text-ink-300" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
+      <button className="mt-4 text-sm text-muted" onClick={() => setMode(mode === "login" ? "signup" : "login")}>
         {mode === "login" ? "¿Primera vez? Crear cuenta" : "Ya tengo cuenta"}
       </button>
     </main>

@@ -17,8 +17,8 @@ App personal de nutrición, entrenamiento y progreso. Está pensada para el celu
 ## 2. Configurar Supabase (unos 10 minutos)
 
 1. Crea un proyecto nuevo en Supabase. Elige la región **South America (São Paulo)** para que sea más rápida desde Lima.
-2. Ve a **SQL Editor → New query**, pega el contenido completo de `supabase/migrations/0001_schema.sql` y presiona **Run**.
-3. Haz lo mismo con `supabase/migrations/0002_seed_foods.sql`, que carga los 49 alimentos iniciales.
+2. Ve a **SQL Editor → New query**, pega el contenido completo de `supabase/fittrack_supabase.sql` (esquema + 49 alimentos) y presiona **Run**.
+3. Si el proyecto ya tenía tablas de un intento anterior, o aparece un error como *"Could not find the '...' column"*, usa en su lugar `supabase/fittrack_reset.sql`. Borra las tablas de FitTrack y las crea de nuevo, conservando las cuentas de usuario.
 4. Ve a **Project Settings → API** y copia:
    - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
    - **Publishable key** (`sb_publishable_...`) → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (en proyectos antiguos puedes usar la `anon` key en `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
@@ -43,6 +43,9 @@ Todo eso se puede editar después en **Perfil**.
 3. El modelo por defecto es `gpt-4o` (tiene visión y salida JSON estructurada). Puedes cambiarlo con `OPENAI_VISION_MODEL` por otro modelo con visión que acepte `json_schema`.
 4. Recomendado: en **Settings → Limits** fija un límite de gasto mensual. Cada foto cuesta aproximadamente centavos de dólar. La app además limita a 20 análisis cada 10 minutos por usuaria.
 
+### Actualizar una base existente
+Si ya tienes FitTrack instalado, ejecuta `supabase/fittrack_actualizacion_2.sql` en el SQL Editor. Agrega las calorías quemadas por ejercicio, los nombres de los guías y amplía la base a 104 alimentos, **sin borrar tus registros**.
+
 ## 4. Ejecutar en tu computadora
 
 ```bash
@@ -57,7 +60,7 @@ Abre http://localhost:3000, crea tu cuenta y listo.
 Otros comandos:
 
 ```bash
-npm test          # 24 pruebas de cálculos (Mifflin-St Jeor, plazos, tendencias, recomendaciones, validación IA)
+npm test          # 37 pruebas de cálculos (Mifflin-St Jeor, plazos, tendencias, recomendaciones, validación IA)
 npm run build     # build de producción
 npm run lint
 ```
@@ -91,7 +94,7 @@ Para probar desde el celular en la misma red Wi-Fi, ejecuta `npm run dev -- -H 0
 | Gasto energético | Mifflin-St Jeor, con actividad cotidiana y ejercicio por separado. TDEE del día suma el ejercicio solo si se registró una sesión |
 | Objetivos | Sugerencia con déficit moderado (≤18 % y ≤500 kcal) y piso de seguridad (nunca menos que el basal ni que 1200 kcal). Guarda historial |
 | Registro diario | 6 comidas por día; agregar, editar gramos, mover de comida o de día, eliminar, navegar al historial |
-| Buscador | Base FitTrack (49 alimentos con fuente), búsqueda USDA en vivo y creación de alimentos propios con su fuente |
+| Buscador | Base FitTrack (104 alimentos con fuente, con ícono y filtro por categoría), búsqueda USDA en vivo y creación de alimentos propios con su fuente |
 | Foto con IA | Cámara o galería, compresión en el celular, validación de tipo y tamaño (y de los bytes reales), foto privada en Storage, respuesta JSON validada, edición completa, correcciones en texto ("el pollo era 150 g"), reanálisis. **Nada se guarda sin confirmar** |
 | Recomendaciones | Combinaciones con alimentos de la base, escaladas a lo que falta. Respeta alergias y preferencias, y no empuja a "completar" calorías |
 | Resumen del día | Calorías, proteína, carbohidratos, grasas, déficit real frente a "restantes" y qué mejorar mañana. Avisa si se come demasiado poco |
@@ -102,6 +105,10 @@ Para probar desde el celular en la misma red Wi-Fi, ejecuta `npm run dev -- -H 0
 | Entrenamientos | Rutinas editables, sugerencia del día que toca, carga de la última sesión precargada, series/reps/peso/comentarios, historial y evolución por ejercicio (carga máxima, volumen, 1RM estimado) |
 | Dashboard | Vista por semana o mes: peso, calorías, proteína, cumplimiento, sesiones, medidas y conclusiones escritas |
 | PWA | Manifest, íconos, service worker (no guarda datos personales en caché) |
+| Calorías quemadas | Pesas y 10 tipos de cardio con intensidad ligera/moderada/intensa. Gasto neto con METs del Compendium of Physical Activities: (MET − 1) × kg × horas. Se suma al gasto del día |
+| Consejos de entrenamiento | Sobrecarga progresiva por ejercicio (cuándo subir peso o repeticiones, cuándo mantener), frecuencia semanal, grupos olvidados, cardio y proteína |
+| Guías | Tres perritos ilustrados (Scottish terrier y dos Yorkshire toy) con consejos según tus datos; sus nombres se editan en Perfil |
+| Diseño | Paleta hueso, espresso y borgoña; modo claro, oscuro y automático; animaciones suaves que se desactivan con "reducir movimiento" |
 
 ### Necesita tus claves para funcionar
 - **Todo lo que usa datos** requiere el proyecto de Supabase (paso 2).

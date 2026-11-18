@@ -20,7 +20,7 @@ interface Analysis {
   is_food: boolean;
 }
 
-const CONF = { alta: "text-mint-400 border-mint-400/40", media: "text-carb border-carb/40", baja: "text-fat border-fat/40" };
+const CONF = { alta: "text-pos border-pos/40", media: "text-carb border-carb/40", baja: "text-fat border-fat/40" };
 
 function PhotoFlow() {
   const sp = useSearchParams();
@@ -148,17 +148,17 @@ function PhotoFlow() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="stagger space-y-4">
       <PageHeader kicker="Reconocimiento con IA" title="Foto de comida" />
       <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => onPick(e.target.files?.[0])} />
       <input ref={galRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={(e) => onPick(e.target.files?.[0])} />
 
       {preview && (
-        <div className="relative overflow-hidden rounded-2xl border border-ink-700">
+        <div className="relative overflow-hidden rounded-2xl border border-line">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={preview} alt="Foto del plato" className="max-h-72 w-full object-cover" />
           {stage === "analyzing" && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-ink-950/70 backdrop-blur-sm">
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-bg/70 backdrop-blur-sm">
               <Spinner className="h-8 w-8" />
               <p className="text-sm">Analizando el plato…</p>
             </div>
@@ -169,10 +169,10 @@ function PhotoFlow() {
       {stage === "capture" && (
         <>
           {!preview ? (
-            <button onClick={() => camRef.current?.click()} className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-lime-400/40 bg-lime-400/5 text-lime-400">
+            <button onClick={() => camRef.current?.click()} className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-accent/40 bg-accent/5 text-accent">
               <Camera className="h-14 w-14" strokeWidth={1.5} />
               <span className="h-display text-2xl">Tomar foto</span>
-              <span className="text-xs text-ink-300">Encuadra todo el plato desde arriba, con buena luz</span>
+              <span className="text-xs text-muted">Encuadra todo el plato desde arriba, con buena luz</span>
             </button>
           ) : (
             <div className="grid grid-cols-2 gap-2">
@@ -186,7 +186,7 @@ function PhotoFlow() {
           <textarea className="input min-h-[70px]" maxLength={300} placeholder="Opcional: contexto para la IA (p. ej. 'el arroz lleva aceite', 'es medio plato')" value={hint} onChange={(e) => setHint(e.target.value)} />
           {error && <ErrorBox message={error} />}
           <button className="btn-primary w-full py-3" disabled={!file} onClick={() => analyze(false)}>Analizar plato</button>
-          <p className="text-center text-[11px] text-ink-400">La foto se guarda de forma privada en tu cuenta. Nada se registra hasta que confirmes.</p>
+          <p className="text-center text-[11px] text-faint">La foto se guarda de forma privada en tu cuenta. Nada se registra hasta que confirmes.</p>
         </>
       )}
 
@@ -210,17 +210,17 @@ function PhotoFlow() {
                   <input className="input py-1.5 text-xs" placeholder="Preparación" value={it.preparation} onChange={(e) => update(i, { preparation: e.target.value })} aria-label="Preparación" />
                   <div className="relative">
                     <input className="input py-1.5 pr-7" type="number" inputMode="decimal" value={it.grams || ""} onChange={(e) => update(i, { grams: Number(e.target.value) })} aria-label="Gramos" />
-                    <span className="absolute right-2.5 top-2 text-xs text-ink-400">g</span>
+                    <span className="absolute right-2.5 top-2 text-xs text-faint">g</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between gap-2">
                   <MacroPills kcal={perItem[i].kcal} p={perItem[i].protein_g} c={perItem[i].carbs_g} f={perItem[i].fat_g} />
                   <div className="flex gap-1">
-                    <button className="rounded-lg p-1.5 text-ink-300 hover:bg-ink-800" aria-label="Cambiar alimento" onClick={() => setPicker({ mode: "swap", index: i })}><Replace className="h-4 w-4" /></button>
+                    <button className="rounded-lg p-1.5 text-muted hover:bg-surface-2" aria-label="Cambiar alimento" onClick={() => setPicker({ mode: "swap", index: i })}><Replace className="h-4 w-4" /></button>
                     <button className="rounded-lg p-1.5 text-fat hover:bg-fat/10" aria-label="Eliminar" onClick={() => remove(i)}><Trash2 className="h-4 w-4" /></button>
                   </div>
                 </div>
-                <p className="text-[10px] text-ink-400">
+                <p className="text-[10px] text-faint">
                   {it.nutrition_source === "base" ? "Nutrientes: base FitTrack" : "Nutrientes: estimación de la IA (no está en la base)"}
                   {it.uncertainty ? ` · ${it.uncertainty}` : ""}
                 </p>
@@ -234,7 +234,7 @@ function PhotoFlow() {
             <div className="flex gap-2">
               <input className="input" placeholder='"El pollo era 150 g", "también hay papa sancochada"' value={instruction} maxLength={500} onChange={(e) => setInstruction(e.target.value)} onKeyDown={(e) => e.key === "Enter" && refine()} />
               <button className="btn-primary px-3" onClick={refine} disabled={refining || instruction.trim().length < 2} aria-label="Aplicar corrección">
-                {refining ? <Spinner className="text-ink-950" /> : <Send className="h-4 w-4" />}
+                {refining ? <Spinner className="text-on-accent" /> : <Send className="h-4 w-4" />}
               </button>
             </div>
           </section>
@@ -242,7 +242,7 @@ function PhotoFlow() {
           <section className="card space-y-3">
             <div className="flex items-center justify-between">
               <p className="label">Total del plato</p>
-              <p className="num text-2xl text-lime-400">{Math.round(totals.kcal)} kcal</p>
+              <p className="num text-2xl text-accent">{Math.round(totals.kcal)} kcal</p>
             </div>
             <MacroPills kcal={totals.kcal} p={totals.protein_g} c={totals.carbs_g} f={totals.fat_g} />
             <select className="input" value={mealType} onChange={(e) => setMealType(e.target.value as MealType)} aria-label="Comida">
@@ -252,7 +252,7 @@ function PhotoFlow() {
             </select>
             {error && <ErrorBox message={error} />}
             <button className="btn-primary w-full py-3" disabled={saving || invalid || !items.length} onClick={confirm}>
-              {saving ? <Spinner className="text-ink-950" /> : "Confirmar y guardar"}
+              {saving ? <Spinner className="text-on-accent" /> : "Confirmar y guardar"}
             </button>
             <div className="grid grid-cols-2 gap-2">
               <button className="btn-ghost text-xs" onClick={() => analyze(true)}><RefreshCw className="h-3.5 w-3.5" /> Volver a analizar</button>
@@ -291,9 +291,9 @@ function FoodPicker({ open, onClose, onPick }: { open: boolean; onClose: () => v
       <ul className="max-h-[50dvh] space-y-1.5 overflow-y-auto">
         {res?.map((f) => (
           <li key={f.id}>
-            <button className="w-full rounded-xl border border-ink-700 bg-ink-850 p-2.5 text-left text-sm hover:border-lime-400/50" onClick={() => onPick(f)}>
+            <button className="w-full rounded-2xl bg-surface-2/70 p-3 text-left text-sm hover:bg-surface-2" onClick={() => onPick(f)}>
               {f.name}
-              <span className="block text-[10px] text-ink-400">{Math.round(f.kcal_100g)} kcal / 100 g · {f.state}</span>
+              <span className="block text-[10px] text-faint">{Math.round(f.kcal_100g)} kcal / 100 g · {f.state}</span>
             </button>
           </li>
         ))}

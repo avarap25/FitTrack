@@ -6,10 +6,24 @@ import { ErrorBox, Field, Loading, MacroPills, Notice, PageHeader, Segmented, Sh
 import { addItems, searchFoods, uid } from "@/lib/data";
 import { macrosFor } from "@/lib/nutrition";
 import { isoDate } from "@/lib/stats";
+import { foodEmoji } from "@/lib/food-emoji";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { defaultMealType, MEAL_TYPES, type FoodItem, type MealType } from "@/lib/types";
 
 interface UsdaFood { fdcId: number; description: string; dataType: string; kcal_100g: number; protein_100g: number; carbs_100g: number; fat_100g: number }
+
+const CATS = [
+  { key: "", label: "Todo" },
+  { key: "frutas", label: "🍓 Frutas" },
+  { key: "proteinas", label: "🍗 Proteínas" },
+  { key: "platos_peruanos", label: "🍽️ Platos peruanos" },
+  { key: "verduras", label: "🥦 Verduras" },
+  { key: "cereales", label: "🍚 Cereales" },
+  { key: "menestras", label: "🫘 Menestras" },
+  { key: "tuberculos", label: "🥔 Tubérculos" },
+  { key: "lacteos", label: "🥛 Lácteos" },
+  { key: "grasas", label: "🥑 Grasas y frutos secos" },
+];
 
 const STATE_LABEL: Record<string, string> = { crudo: "Crudo", cocido: "Cocido", preparado: "Preparación", envasado: "Envasado" };
 
@@ -26,6 +40,7 @@ function SearchFoods() {
   const [selected, setSelected] = useState<FoodItem | null>(null);
   const [creating, setCreating] = useState(false);
   const [usdaBusy, setUsdaBusy] = useState(false);
+  const [cat, setCat] = useState("");
 
   useEffect(() => {
     if (tab !== "base") return;
@@ -62,7 +77,7 @@ function SearchFoods() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="stagger space-y-4">
       <PageHeader kicker="Agregar alimento" title="Buscador" />
       <div className="grid grid-cols-2 gap-2">
         <select className="input" value={mealType} onChange={(e) => setMealType(e.target.value as MealType)} aria-label="Comida">
@@ -70,10 +85,10 @@ function SearchFoods() {
             <option key={m.key} value={m.key}>{m.label}</option>
           ))}
         </select>
-        <div className="input flex items-center text-ink-300">{date === isoDate() ? "Hoy" : date}</div>
+        <div className="input flex items-center text-muted">{date === isoDate() ? "Hoy" : date}</div>
       </div>
       <div className="relative">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-ink-400" />
+        <Search className="absolute left-3 top-3 h-4 w-4 text-faint" />
         <input className="input pl-9" placeholder={tab === "base" ? "Ej. pollo, papa, ceviche…" : "En inglés: chicken breast, quinoa…"} value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => e.key === "Enter" && tab === "usda" && searchUsda()} autoFocus />
       </div>
       <div className="flex items-center justify-between">
@@ -86,18 +101,23 @@ function SearchFoods() {
 
       {tab === "base" && (
         <>
+          <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+            {CATS.map((c) => (
+              <button key={c.key} className={`chip shrink-0 ${cat === c.key ? "chip-on" : ""}`} onClick={() => setCat(c.key)}>{c.label}</button>
+            ))}
+          </div>
           {!results && <Loading />}
           {results?.length === 0 && <Notice tone="info">No hay resultados en la base. Prueba en la pestaña USDA o crea el alimento.</Notice>}
           <ul className="space-y-2">
-            {results?.map((f) => (
+            {results?.filter((f) => !cat || f.category === cat || (cat === "proteinas" && f.category === "usda")).map((f) => (
               <li key={f.id}>
-                <button className="card-tight w-full text-left transition hover:border-lime-400/50" onClick={() => setSelected(f)}>
+                <button className="card-tight w-full text-left transition hover:bg-surface-2" onClick={() => setSelected(f)}>
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold">{f.name}</p>
+                    <p className="flex items-center gap-2.5 text-sm font-semibold"><span className="text-[22px]">{foodEmoji(f.name, f.category)}</span>{f.name}</p>
                     <span className="chip shrink-0 py-0.5 text-[10px]">{STATE_LABEL[f.state]}</span>
                   </div>
                   <MacroPills className="mt-1" kcal={f.kcal_100g} p={f.protein_100g} c={f.carbs_100g} f={f.fat_100g} />
-                  <p className="mt-1 text-[10px] text-ink-400">por 100 g · {f.is_estimate ? "estimación por receta" : f.user_id ? "personalizado" : "USDA"}</p>
+                  <p className="mt-1 text-[10px] text-faint">por 100 g · {f.is_estimate ? "estimación por receta" : f.user_id ? "personalizado" : "USDA"}</p>
                 </button>
               </li>
             ))}
@@ -108,16 +128,16 @@ function SearchFoods() {
       {tab === "usda" && (
         <>
           <button className="btn-primary w-full" onClick={searchUsda} disabled={usdaBusy || q.trim().length < 2}>
-            {usdaBusy ? <Spinner className="text-ink-950" /> : <><Globe className="h-4 w-4" /> Buscar en USDA FoodData Central</>}
+            {usdaBusy ? <Spinner className="text-on-accent" /> : <><Globe className="h-4 w-4" /> Buscar en USDA FoodData Central</>}
           </button>
-          <p className="text-[11px] text-ink-400">Base oficial del Departamento de Agricultura de EE. UU. Busca en inglés. Al elegir un resultado se guarda en tu base personal con su fdcId.</p>
+          <p className="text-[11px] text-faint">Base oficial del Departamento de Agricultura de EE. UU. Busca en inglés. Al elegir un resultado se guarda en tu base personal con su fdcId.</p>
           <ul className="space-y-2">
             {usda?.map((f) => (
               <li key={f.fdcId}>
-                <button className="card-tight w-full text-left hover:border-lime-400/50" onClick={() => saveUsda(f)}>
+                <button className="card-tight w-full text-left hover:bg-surface-2" onClick={() => saveUsda(f)}>
                   <p className="text-sm font-semibold">{f.description}</p>
                   <MacroPills className="mt-1" kcal={f.kcal_100g} p={f.protein_100g} c={f.carbs_100g} f={f.fat_100g} />
-                  <p className="mt-1 text-[10px] text-ink-400">por 100 g · {f.dataType} · fdcId {f.fdcId}</p>
+                  <p className="mt-1 text-[10px] text-faint">por 100 g · {f.dataType} · fdcId {f.fdcId}</p>
                 </button>
               </li>
             ))}
@@ -150,7 +170,7 @@ function AddSheet({ food, onClose, onAdd }: { food: FoodItem | null; onClose: ()
   return (
     <Sheet open onClose={onClose} title={food.name}>
       <div className="space-y-4">
-        {food.preparation && <p className="text-xs text-ink-300">{food.preparation}</p>}
+        {food.preparation && <p className="text-xs text-muted">{food.preparation}</p>}
         <Field label="Cantidad (g)">
           <input className="input" type="number" inputMode="decimal" value={grams} onChange={(e) => setGrams(e.target.value)} />
         </Field>
@@ -166,7 +186,7 @@ function AddSheet({ food, onClose, onAdd }: { food: FoodItem | null; onClose: ()
         <div className="card-tight">
           <MacroPills kcal={m.kcal} p={m.protein_g} c={m.carbs_g} f={m.fat_g} />
         </div>
-        <p className="flex items-start gap-1.5 text-[11px] text-ink-400">
+        <p className="flex items-start gap-1.5 text-[11px] text-faint">
           <Database className="mt-0.5 h-3 w-3 shrink-0" />
           <span>Fuente: {food.source}{food.source_ref ? ` — ${food.source_ref}` : ""}{food.is_estimate ? ". Es una estimación: la receta real puede variar." : ""}</span>
         </p>
@@ -175,7 +195,7 @@ function AddSheet({ food, onClose, onAdd }: { food: FoodItem | null; onClose: ()
           setBusy(true);
           try { await onAdd(g); } catch (e) { setError((e as Error).message); setBusy(false); }
         }}>
-          {busy ? <Spinner className="text-ink-950" /> : "Agregar a la comida"}
+          {busy ? <Spinner className="text-on-accent" /> : "Agregar a la comida"}
         </button>
       </div>
     </Sheet>
@@ -230,7 +250,7 @@ function CreateFoodSheet({ open, onClose, onCreated, initialName }: { open: bool
         </div>
         <Field label="Fuente" hint="Etiqueta del producto, tabla nutricional, etc."><input className="input" value={form.source} onChange={set("source")} /></Field>
         {error && <ErrorBox message={error} />}
-        <button className="btn-primary w-full" onClick={save} disabled={busy}>{busy ? <Spinner className="text-ink-950" /> : "Guardar alimento"}</button>
+        <button className="btn-primary w-full" onClick={save} disabled={busy}>{busy ? <Spinner className="text-on-accent" /> : "Guardar alimento"}</button>
       </div>
     </Sheet>
   );

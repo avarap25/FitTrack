@@ -16,13 +16,13 @@ export default function Registrar() {
       <PageHeader kicker="Nuevo registro" title="¿Qué registras?" />
       <div className="space-y-3">
         {options.map(({ href, icon: Icon, title, desc, primary }) => (
-          <Link key={href} href={href} className={primary ? "flex items-center gap-4 rounded-2xl bg-lime-400 p-5 text-ink-950 shadow-glow" : "card flex items-center gap-4"}>
-            <div className={primary ? "rounded-xl bg-ink-950/10 p-3" : "rounded-xl bg-ink-800 p-3 text-lime-400"}>
+          <Link key={href} href={href} className={primary ? "flex items-center gap-4 rounded-2xl bg-accent p-5 text-on-accent shadow-lift" : "card flex items-center gap-4"}>
+            <div className={primary ? "rounded-2xl bg-on-accent/10 p-3" : "rounded-2xl bg-surface-2 p-3 text-accent"}>
               <Icon className="h-6 w-6" />
             </div>
             <div>
               <p className="h-display text-xl">{title}</p>
-              <p className={primary ? "text-sm text-ink-900/80" : "text-sm text-ink-300"}>{desc}</p>
+              <p className={primary ? "text-sm text-on-accent/80" : "text-sm text-muted"}>{desc}</p>
             </div>
           </Link>
         ))}

@@ -2,8 +2,10 @@
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Camera, Lightbulb, Plus, Ruler, Scale, Target, Trash2 } from "lucide-react";
+import { Camera, Plus, Ruler, Scale, Target, Trash2 } from "lucide-react";
 import { useApp } from "@/components/AppProvider";
+import { PetAvatar, usePetNames } from "@/components/Pets";
+import { useChartColors } from "@/components/theme";
 import { ErrorBox, Field, Loading, Notice, PageHeader, Segmented, Sheet, Spinner, Stat } from "@/components/ui";
 import { compressImage, fetchDailyTotals, fetchWeights, fetchWorkouts, signedUrl, uid } from "@/lib/data";
 import { calorieFloor, energyBreakdown, goalPlan, round, trendAdjustment } from "@/lib/nutrition";
@@ -11,11 +13,13 @@ import { addDaysIso, bucketAverages, fmtDate, isoDate, movingAverage, weekStart,
 import { supabaseBrowser } from "@/lib/supabase/client";
 import type { BodyMeasurement, WeightLog, Workout } from "@/lib/types";
 
-const tooltipStyle = { background: "#12161A", border: "1px solid #2F3841", borderRadius: 12, fontSize: 12 };
+const tip = (c: ReturnType<typeof useChartColors>) => ({ background: c.surface, border: "none", borderRadius: 14, fontSize: 12, color: c.fg, boxShadow: "0 8px 24px -8px rgba(0,0,0,.25)" });
 type Range = "week" | "month";
 
 function Progress() {
+  const cc = useChartColors();
   const { profile, goal, reload } = useApp();
+  const pets = usePetNames();
   const sp = useSearchParams();
   const [range, setRange] = useState<Range>("week");
   const [weights, setWeights] = useState<WeightLog[] | null>(null);
@@ -103,7 +107,7 @@ function Progress() {
   if (!weights) return <Loading />;
 
   return (
-    <div className="space-y-4">
+    <div className="stagger space-y-4">
       <PageHeader kicker="Tu evolución" title="Progreso" right={<Segmented value={range} onChange={setRange} options={[{ value: "week", label: "Semana" }, { value: "month", label: "Mes" }]} />} />
 
       <section className="card">
@@ -112,12 +116,12 @@ function Progress() {
           <button className="btn-primary py-1.5 text-xs" onClick={() => setSheet("peso")}><Plus className="h-3.5 w-3.5" /> Peso</button>
         </div>
         <div className="flex items-end justify-between">
-          <div><p className="text-[11px] text-ink-400">Inicio</p><p className="num text-xl">{profile.start_weight_kg}</p></div>
-          <div className="text-center"><p className="text-[11px] text-ink-400">Actual</p><p className="num text-5xl text-lime-400">{current}</p></div>
-          <div className="text-right"><p className="text-[11px] text-ink-400">Meta</p><p className="num text-xl">{profile.target_weight_kg}</p></div>
+          <div><p className="text-[11px] text-faint">Inicio</p><p className="num text-xl">{profile.start_weight_kg}</p></div>
+          <div className="text-center"><p className="text-[11px] text-faint">Actual</p><p className="num text-5xl text-accent">{current}</p></div>
+          <div className="text-right"><p className="text-[11px] text-faint">Meta</p><p className="num text-xl">{profile.target_weight_kg}</p></div>
         </div>
-        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-ink-700"><div className="h-full rounded-full bg-lime-400 transition-all" style={{ width: `${pct}%` }} /></div>
-        <p className="mt-2 text-xs text-ink-300">
+        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-track"><div className="h-full rounded-full bg-accent transition-all" style={{ width: `${pct}%` }} /></div>
+        <p className="mt-2 text-xs text-muted">
           {lostSoFar >= 0 ? `-${lostSoFar}` : `+${Math.abs(lostSoFar)}`} kg desde el inicio · faltan {Math.max(0, round(current - profile.target_weight_kg, 1))} kg · {Math.round(pct)}%
         </p>
         <div className="mt-3 grid grid-cols-2 gap-2">
@@ -125,7 +129,7 @@ function Progress() {
           <Stat label="Plazo saludable" value={`${plan.weeks_range[0]}–${plan.weeks_range[1]}`} unit="sem" sub="a 0.25–0.5 kg/semana" />
         </div>
         {profile.target_date && plan.required_kg_per_week !== null && (
-          <p className="mt-3 text-xs text-ink-300">
+          <p className="mt-3 text-xs text-muted">
             Para el {fmtDate(profile.target_date, { day: "numeric", month: "long", year: "numeric" })} necesitarías {plan.required_kg_per_week} kg/semana (déficit ~{plan.required_daily_deficit} kcal/día).
           </p>
         )}
@@ -145,13 +149,13 @@ function Progress() {
           <div className="h-56">
             <ResponsiveContainer>
               <LineChart data={chart} margin={{ left: -20, right: 8, top: 8 }}>
-                <CartesianGrid stroke="#232A31" vertical={false} />
-                <XAxis dataKey="label" stroke="#6B7783" fontSize={11} minTickGap={20} />
-                <YAxis stroke="#6B7783" fontSize={11} domain={["dataMin - 1", "dataMax + 1"]} />
-                <Tooltip contentStyle={tooltipStyle} />
-                <ReferenceLine y={profile.target_weight_kg} stroke="#3DE0A0" strokeDasharray="4 4" />
-                <Line isAnimationActive={false} type="monotone" dataKey="weight" name="Pesaje" stroke="#6B7783" strokeWidth={0} dot={{ r: 2.5, fill: "#9AA5B0" }} />
-                <Line isAnimationActive={false} type="monotone" dataKey="avg" name="Media 7 días" stroke="#B6F23C" strokeWidth={2.5} dot={false} />
+                <CartesianGrid stroke={cc.grid} vertical={false} />
+                <XAxis dataKey="label" stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} minTickGap={20} />
+                <YAxis stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} domain={["dataMin - 1", "dataMax + 1"]} />
+                <Tooltip contentStyle={tip(cc)} />
+                <ReferenceLine y={profile.target_weight_kg} stroke={cc.pos} strokeDasharray="4 4" />
+                <Line isAnimationActive={false} type="monotone" dataKey="weight" name="Pesaje" stroke={cc.axis} strokeWidth={0} dot={{ r: 2.5, fill: cc.axis }} />
+                <Line isAnimationActive={false} type="monotone" dataKey="avg" name="Media 7 días" stroke={cc.accent} strokeWidth={2.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -160,10 +164,10 @@ function Progress() {
           {weightBuckets.slice(-8).map((b, i, arr) => {
             const d = i > 0 ? round(b.avg - arr[i - 1].avg, 2) : null;
             return (
-              <div key={b.key} className="min-w-[84px] rounded-xl bg-ink-850 p-2 text-center">
-                <p className="text-[10px] text-ink-400">{range === "week" ? `Sem ${fmtDate(b.key)}` : b.key}</p>
+              <div key={b.key} className="min-w-[84px] rounded-2xl bg-surface-2 p-2 text-center">
+                <p className="text-[10px] text-faint">{range === "week" ? `Sem ${fmtDate(b.key)}` : b.key}</p>
                 <p className="num text-lg">{b.avg}</p>
-                <p className={`text-[10px] ${d === null ? "text-ink-400" : d < 0 ? "text-mint-400" : d > 0 ? "text-fat" : "text-ink-400"}`}>{d === null ? `${b.count} pesajes` : `${d > 0 ? "+" : ""}${d} kg`}</p>
+                <p className={`text-[10px] ${d === null ? "text-faint" : d < 0 ? "text-pos" : d > 0 ? "text-fat" : "text-faint"}`}>{d === null ? `${b.count} pesajes` : `${d > 0 ? "+" : ""}${d} kg`}</p>
               </div>
             );
           })}
@@ -172,14 +176,20 @@ function Progress() {
       </section>
 
       <section className="card">
-        <p className="label mb-2 flex items-center gap-1.5"><Lightbulb className="h-3.5 w-3.5 text-lime-400" /> Lo que muestran tus datos</p>
-        <ul className="space-y-1.5 text-sm text-ink-200">
-          {insights.map((t, i) => <li key={i}>• {t}</li>)}
+        <div className="mb-3 flex items-center gap-3">
+          <PetAvatar kind="yorkie2" size={52} />
+          <div>
+            <p className="serif text-[19px] leading-tight">Lo que muestran tus datos</p>
+            <p className="text-[12px] text-muted">{pets.yorkie2} revisó tus últimas semanas</p>
+          </div>
+        </div>
+        <ul className="space-y-2 text-[14px] leading-relaxed">
+          {insights.map((t, i) => <li key={i} className="flex gap-2.5"><i className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" /><span>{t}</span></li>)}
         </ul>
         {adjust && (
-          <div className="mt-3 rounded-xl border border-ink-700 bg-ink-850 p-3 text-xs">
-            <p className="text-ink-200">Gasto real estimado con tus datos: <b className="num">{adjust.observedTdee}</b> kcal/día (modelo: {Math.round(energy.tdee_avg)}).</p>
-            <p className="mt-1 text-ink-300">{adjust.message}</p>
+          <div className="mt-3 rounded-2xl bg-surface-2/70 p-3.5 text-xs">
+            <p className="text-fg">Gasto real estimado con tus datos: <b className="num">{adjust.observedTdee}</b> kcal/día (modelo: {Math.round(energy.tdee_avg)}).</p>
+            <p className="mt-1 text-muted">{adjust.message}</p>
             {Math.abs(adjust.change) >= 30 && (
               <button className="btn-primary mt-2 py-1.5 text-xs" onClick={applyAdjust}>Aplicar {adjust.suggestedGoal} kcal</button>
             )}
@@ -196,12 +206,12 @@ function Progress() {
             <div className="h-44">
               <ResponsiveContainer>
                 <BarChart data={nutritionChart} margin={{ left: -16, right: 8, top: 8 }}>
-                  <CartesianGrid stroke="#232A31" vertical={false} />
-                  <XAxis dataKey="label" stroke="#6B7783" fontSize={11} />
-                  <YAxis stroke="#6B7783" fontSize={11} domain={[0, (max: number) => Math.round(Math.max(max, goal.calories) * 1.1)]} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <ReferenceLine y={goal.calories} stroke="#B6F23C" strokeDasharray="4 4" />
-                  <Bar isAnimationActive={false} dataKey="kcal" name="kcal/día" fill="#B6F23C" radius={[6, 6, 0, 0]} />
+                  <CartesianGrid stroke={cc.grid} vertical={false} />
+                  <XAxis dataKey="label" stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} />
+                  <YAxis stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} domain={[0, (max: number) => Math.round(Math.max(max, goal.calories) * 1.1)]} />
+                  <Tooltip contentStyle={tip(cc)} />
+                  <ReferenceLine y={goal.calories} stroke={cc.accent} strokeDasharray="4 4" />
+                  <Bar isAnimationActive={false} dataKey="kcal" name="kcal/día" fill={cc.accent} radius={[8, 8, 8, 8]} barSize={14} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -209,12 +219,12 @@ function Progress() {
             <div className="h-36">
               <ResponsiveContainer>
                 <BarChart data={nutritionChart} margin={{ left: -16, right: 8, top: 8 }}>
-                  <CartesianGrid stroke="#232A31" vertical={false} />
-                  <XAxis dataKey="label" stroke="#6B7783" fontSize={11} />
-                  <YAxis stroke="#6B7783" fontSize={11} domain={[0, (max: number) => Math.round(Math.max(max, goal.protein_g) * 1.1)]} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <ReferenceLine y={goal.protein_g} stroke="#4FC3F7" strokeDasharray="4 4" />
-                  <Bar isAnimationActive={false} dataKey="prot" name="proteína g/día" fill="#4FC3F7" radius={[6, 6, 0, 0]} />
+                  <CartesianGrid stroke={cc.grid} vertical={false} />
+                  <XAxis dataKey="label" stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} />
+                  <YAxis stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} domain={[0, (max: number) => Math.round(Math.max(max, goal.protein_g) * 1.1)]} />
+                  <Tooltip contentStyle={tip(cc)} />
+                  <ReferenceLine y={goal.protein_g} stroke={cc.prot} strokeDasharray="4 4" />
+                  <Bar isAnimationActive={false} dataKey="prot" name="proteína g/día" fill={cc.prot} radius={[8, 8, 8, 8]} barSize={14} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -233,11 +243,11 @@ function Progress() {
           <div className="h-40">
             <ResponsiveContainer>
               <BarChart data={sessions} margin={{ left: -28, right: 8, top: 8 }}>
-                <XAxis dataKey="label" stroke="#6B7783" fontSize={11} />
-                <YAxis stroke="#6B7783" fontSize={11} allowDecimals={false} />
-                <Tooltip contentStyle={tooltipStyle} />
-                {range === "week" && <ReferenceLine y={profile.training_days_per_week} stroke="#B6F23C" strokeDasharray="4 4" />}
-                <Bar isAnimationActive={false} dataKey="n" name="sesiones" fill="#3DE0A0" radius={[6, 6, 0, 0]} />
+                <XAxis dataKey="label" stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} />
+                <YAxis stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} allowDecimals={false} />
+                <Tooltip contentStyle={tip(cc)} />
+                {range === "week" && <ReferenceLine y={profile.training_days_per_week} stroke={cc.accent} strokeDasharray="4 4" />}
+                <Bar isAnimationActive={false} dataKey="n" name="sesiones" fill={cc.pos} radius={[8, 8, 8, 8]} barSize={14} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -257,15 +267,15 @@ function WeightList({ weights, onChange }: { weights: WeightLog[]; onChange: () 
   const [open, setOpen] = useState(false);
   return (
     <div className="mt-3">
-      <button className="text-xs text-ink-300 underline" onClick={() => setOpen(!open)}>{open ? "Ocultar" : "Ver"} pesajes ({weights.length})</button>
+      <button className="text-xs text-muted underline" onClick={() => setOpen(!open)}>{open ? "Ocultar" : "Ver"} pesajes ({weights.length})</button>
       {open && (
-        <ul className="mt-2 max-h-60 divide-y divide-ink-700 overflow-y-auto">
+        <ul className="mt-2 max-h-60 divide-y divide-line overflow-y-auto">
           {[...weights].reverse().map((w) => (
             <li key={w.id} className="flex items-center justify-between py-1.5 text-sm">
-              <span className="text-ink-300">{fmtDate(w.logged_on, { weekday: "short", day: "numeric", month: "short", year: "2-digit" })}</span>
+              <span className="text-muted">{fmtDate(w.logged_on, { weekday: "short", day: "numeric", month: "short", year: "2-digit" })}</span>
               <span className="flex items-center gap-3">
                 <span className="num">{w.weight_kg} kg</span>
-                <button aria-label="Eliminar pesaje" className="text-ink-400 hover:text-fat" onClick={async () => { await supabaseBrowser().from("weight_logs").delete().eq("id", w.id); onChange(); }}><Trash2 className="h-3.5 w-3.5" /></button>
+                <button aria-label="Eliminar pesaje" className="text-faint hover:text-fat" onClick={async () => { await supabaseBrowser().from("weight_logs").delete().eq("id", w.id); onChange(); }}><Trash2 className="h-3.5 w-3.5" /></button>
               </span>
             </li>
           ))}
@@ -302,9 +312,9 @@ function WeightSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =>
       <div className="space-y-3">
         <Field label="Peso (kg)"><input className="input text-2xl" inputMode="decimal" autoFocus value={kg} onChange={(e) => setKg(e.target.value)} placeholder="68.0" /></Field>
         <Field label="Fecha"><input className="input" type="date" value={date} max={isoDate()} onChange={(e) => setDate(e.target.value)} /></Field>
-        <p className="text-[11px] text-ink-400">Consejo: pésate en ayunas, después de ir al baño y con poca ropa. Las variaciones de 0.5–1.5 kg de un día a otro son normales.</p>
+        <p className="text-[11px] text-faint">Consejo: pésate en ayunas, después de ir al baño y con poca ropa. Las variaciones de 0.5–1.5 kg de un día a otro son normales.</p>
         {error && <ErrorBox message={error} />}
-        <button className="btn-primary w-full" onClick={save} disabled={busy}>{busy ? <Spinner className="text-ink-950" /> : "Guardar"}</button>
+        <button className="btn-primary w-full" onClick={save} disabled={busy}>{busy ? <Spinner className="text-on-accent" /> : "Guardar"}</button>
       </div>
     </Sheet>
   );
@@ -319,6 +329,7 @@ const MEASURE_FIELDS = [
 ] as const;
 
 function Measurements({ measures, onAdd }: { measures: BodyMeasurement[]; onAdd: () => void }) {
+  const cc = useChartColors();
   const first = measures[0];
   const last = measures.at(-1);
   return (
@@ -341,12 +352,12 @@ function Measurements({ measures, onAdd }: { measures: BodyMeasurement[]; onAdd:
             <div className="mt-3 h-40">
               <ResponsiveContainer>
                 <LineChart data={measures.map((m) => ({ label: fmtDate(m.measured_on), cintura: m.waist_cm ? Number(m.waist_cm) : null, cadera: m.hip_cm ? Number(m.hip_cm) : null, muslo: m.thigh_cm ? Number(m.thigh_cm) : null }))} margin={{ left: -20, right: 8, top: 8 }}>
-                  <XAxis dataKey="label" stroke="#6B7783" fontSize={11} />
-                  <YAxis stroke="#6B7783" fontSize={11} domain={["dataMin - 2", "dataMax + 2"]} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Line isAnimationActive={false} dataKey="cintura" stroke="#B6F23C" strokeWidth={2} connectNulls />
-                  <Line isAnimationActive={false} dataKey="cadera" stroke="#4FC3F7" strokeWidth={2} connectNulls />
-                  <Line isAnimationActive={false} dataKey="muslo" stroke="#F5B83D" strokeWidth={2} connectNulls />
+                  <XAxis dataKey="label" stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} />
+                  <YAxis stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} domain={["dataMin - 2", "dataMax + 2"]} />
+                  <Tooltip contentStyle={tip(cc)} />
+                  <Line isAnimationActive={false} dataKey="cintura" stroke={cc.accent} strokeWidth={2} connectNulls />
+                  <Line isAnimationActive={false} dataKey="cadera" stroke={cc.prot} strokeWidth={2} connectNulls />
+                  <Line isAnimationActive={false} dataKey="muslo" stroke={cc.carb} strokeWidth={2} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -388,9 +399,9 @@ function MeasureSheet({ open, onClose, onSaved }: { open: boolean; onClose: () =
           <Field label="Fecha"><input className="input" type="date" value={date} max={isoDate()} onChange={(e) => setDate(e.target.value)} /></Field>
         </div>
         <input className="input" placeholder="Nota (opcional)" value={note} onChange={(e) => setNote(e.target.value)} />
-        <p className="text-[11px] text-ink-400">Mide siempre en el mismo punto y a la misma hora. Cintura: a la altura del ombligo, sin apretar.</p>
+        <p className="text-[11px] text-faint">Mide siempre en el mismo punto y a la misma hora. Cintura: a la altura del ombligo, sin apretar.</p>
         {error && <ErrorBox message={error} />}
-        <button className="btn-primary w-full" onClick={save} disabled={busy}>{busy ? <Spinner className="text-ink-950" /> : "Guardar medidas"}</button>
+        <button className="btn-primary w-full" onClick={save} disabled={busy}>{busy ? <Spinner className="text-on-accent" /> : "Guardar medidas"}</button>
       </div>
     </Sheet>
   );
@@ -443,23 +454,23 @@ function ProgressPhotos({ open, onOpen, onClose }: { open: boolean; onOpen: () =
         <p className="label flex items-center gap-1.5"><Camera className="h-3.5 w-3.5" /> Fotos de progreso · privadas</p>
         <button className="btn-ghost py-1.5 text-xs" onClick={onOpen}><Plus className="h-3.5 w-3.5" /> Foto</button>
       </div>
-      {!photos ? <Spinner /> : photos.length === 0 ? <p className="text-xs text-ink-400">Solo tú puedes verlas: se guardan en un almacenamiento privado de tu cuenta y se muestran con enlaces temporales.</p> : (
+      {!photos ? <Spinner /> : photos.length === 0 ? <p className="text-xs text-faint">Solo tú puedes verlas: se guardan en un almacenamiento privado de tu cuenta y se muestran con enlaces temporales.</p> : (
         <div className="grid grid-cols-3 gap-2">
           {photos.map((p) => (
-            <div key={p.id} className="group relative aspect-[3/4] overflow-hidden rounded-xl bg-ink-850">
+            <div key={p.id} className="group relative aspect-[3/4] overflow-hidden rounded-2xl bg-surface-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               {p.url && <img src={p.url} alt={`Progreso ${p.taken_on}`} className="h-full w-full object-cover" />}
-              <span className="absolute bottom-1 left-1 rounded bg-ink-950/80 px-1.5 text-[10px]">{fmtDate(p.taken_on)}</span>
-              <button aria-label="Eliminar foto" className="absolute right-1 top-1 rounded bg-ink-950/80 p-1 text-fat" onClick={() => remove(p)}><Trash2 className="h-3 w-3" /></button>
+              <span className="absolute bottom-1 left-1 rounded bg-bg/80 px-1.5 text-[10px]">{fmtDate(p.taken_on)}</span>
+              <button aria-label="Eliminar foto" className="absolute right-1 top-1 rounded bg-bg/80 p-1 text-fat" onClick={() => remove(p)}><Trash2 className="h-3 w-3" /></button>
             </div>
           ))}
         </div>
       )}
       <Sheet open={open} onClose={onClose} title="Foto de progreso">
         <div className="space-y-3">
-          <p className="text-sm text-ink-300">Usa la misma luz, pose y distancia cada vez para poder comparar.</p>
+          <p className="text-sm text-muted">Usa la misma luz, pose y distancia cada vez para poder comparar.</p>
           <label className="btn-primary w-full cursor-pointer">
-            {busy ? <Spinner className="text-ink-950" /> : <><Camera className="h-4 w-4" /> Tomar o elegir foto</>}
+            {busy ? <Spinner className="text-on-accent" /> : <><Camera className="h-4 w-4" /> Tomar o elegir foto</>}
             <input type="file" accept="image/*" className="hidden" onChange={(e) => upload(e.target.files?.[0])} disabled={busy} />
           </label>
           {error && <ErrorBox message={error} />}

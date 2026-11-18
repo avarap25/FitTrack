@@ -1,94 +1,160 @@
 "use client";
 import clsx from "clsx";
 import { Loader2, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export function cn(...a: Parameters<typeof clsx>) {
   return clsx(...a);
 }
 
+const useIso = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/** Número que sube suavemente hasta su valor (respeta "reducir movimiento"). */
+export function CountUp({ value, decimals = 0, duration = 900, className }: { value: number; decimals?: number; duration?: number; className?: string }) {
+  const [shown, setShown] = useState(0);
+  const from = useRef(0);
+  useEffect(() => {
+    const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const start = from.current;
+    if (reduce || !Number.isFinite(value)) {
+      setShown(value);
+      from.current = value;
+      return;
+    }
+    let raf = 0;
+    const t0 = performance.now();
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      const e = 1 - Math.pow(1 - p, 4);
+      setShown(start + (value - start) * e);
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else from.current = value;
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return <span className={className}>{shown.toLocaleString("es-PE", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}</span>;
+}
+
+/** Hook: vale false en el primer pintado y true después → permite animar desde 0. */
+function useMounted() {
+  const [m, setM] = useState(false);
+  useIso(() => {
+    const id = requestAnimationFrame(() => setM(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+  return m;
+}
+
 export function PageHeader({ title, kicker, right }: { title: string; kicker?: string; right?: React.ReactNode }) {
   return (
-    <header className="mb-4 flex items-end justify-between gap-3 pt-2">
+    <header className="mb-6 flex items-end justify-between gap-3 pt-4">
       <div>
-        {kicker && <p className="label text-lime-400">{kicker}</p>}
-        <h1 className="h-display text-3xl">{title}</h1>
+        {kicker && <p className="mb-1 text-[13px] text-muted">{kicker}</p>}
+        <h1 className="h-display text-[34px] leading-none">{title}</h1>
       </div>
       {right}
     </header>
   );
 }
 
-export function ProgressRing({ value, max, size = 168, stroke = 14, children, color = "#B6F23C" }: { value: number; max: number; size?: number; stroke?: number; children?: React.ReactNode; color?: string }) {
-  const r = (size - stroke) / 2;
+export function ProgressRing({ value, max, size = 200, stroke = 10, children }: { value: number; max: number; size?: number; stroke?: number; children?: React.ReactNode }) {
+  const mounted = useMounted();
+  const r = (size - stroke) / 2 - 6;
   const c = 2 * Math.PI * r;
   const pct = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
   const over = max > 0 && value > max;
+  const shown = mounted ? pct : 0;
+  const color = over ? "rgb(var(--fat))" : "rgb(var(--accent))";
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#232A31" strokeWidth={stroke} fill="none" />
-        {/* marcas tipo marcador */}
-        {Array.from({ length: 40 }).map((_, i) => {
-          const a = (i / 40) * 2 * Math.PI;
-          const r1 = r + stroke / 2 + 3;
-          const r2 = r1 + (i % 5 === 0 ? 5 : 2.5);
-          return <line key={i} x1={size / 2 + r1 * Math.cos(a)} y1={size / 2 + r1 * Math.sin(a)} x2={size / 2 + r2 * Math.cos(a)} y2={size / 2 + r2 * Math.sin(a)} stroke="#2F3841" strokeWidth={1} />;
-        })}
+      <svg width={size} height={size} className="overflow-visible">
+        <defs>
+          <filter id="ring-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" />
+          </filter>
+        </defs>
+        <circle cx={size / 2} cy={size / 2} r={r} style={{ stroke: "rgb(var(--track))" }} strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={r}
-          stroke={over ? "#FF7A59" : color}
+          style={{ stroke: color, transition: "stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1)" }}
           strokeWidth={stroke}
           strokeLinecap="round"
           fill="none"
           strokeDasharray={c}
-          strokeDashoffset={c * (1 - pct)}
-          style={{ transition: "stroke-dashoffset .6s ease" }}
+          strokeDashoffset={c * (1 - shown)}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
+        {/* destello que viaja con la punta del anillo */}
+        <g style={{ transform: `rotate(${shown * 360}deg)`, transformOrigin: "50% 50%", transformBox: "view-box", transition: "transform 1.4s cubic-bezier(.22,1,.36,1)", opacity: shown > 0.01 ? 1 : 0 }}>
+          <circle cx={size / 2} cy={size / 2 - r} r={stroke * 0.9} style={{ fill: "rgb(var(--glow))" }} filter="url(#ring-glow)" opacity={0.85} />
+          <circle cx={size / 2} cy={size / 2 - r} r={stroke / 2 - 1.5} style={{ fill: "rgb(var(--glow))" }} />
+        </g>
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">{children}</div>
     </div>
   );
 }
 
-export function MacroBar({ label, value, goal, color, unit = "g" }: { label: string; value: number; goal: number; color: string; unit?: string }) {
+export function MacroBar({ label, value, goal, color, unit = "g", compact }: { label: string; value: number; goal: number; color: string; unit?: string; compact?: boolean }) {
+  const mounted = useMounted();
   const pct = goal > 0 ? Math.min(100, (value / goal) * 100) : 0;
+  const bar = (
+    <div className="h-1.5 overflow-hidden rounded-full bg-track">
+      <div className="h-full rounded-full" style={{ width: `${mounted ? pct : 0}%`, background: color, transition: "width 1.2s cubic-bezier(.22,1,.36,1)" }} />
+    </div>
+  );
+  if (compact)
+    return (
+      <div>
+        <span className="flex items-center gap-1.5 text-[12px] text-muted">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />
+          {label}
+        </span>
+        <p className="num mb-2 mt-0.5 whitespace-nowrap text-[22px] leading-tight">
+          <CountUp value={Math.round(value)} />
+          <span className="text-[12px] text-faint"> /{Math.round(goal)}{unit}</span>
+        </p>
+        {bar}
+      </div>
+    );
   return (
     <div>
-      <div className="mb-1.5 flex items-baseline justify-between">
-        <span className="label">{label}</span>
-        <span className="num text-base">
+      <div className="mb-2 flex items-baseline justify-between gap-2">
+        <span className="flex items-center gap-2 text-[13px] text-muted">
+          <span className="h-2 w-2 rounded-full" style={{ background: color }} />
+          {label}
+        </span>
+        <span className="num whitespace-nowrap text-base">
           {Math.round(value)}
-          <span className="text-ink-400"> / {Math.round(goal)} {unit}</span>
+          <span className="text-faint"> / {Math.round(goal)} {unit}</span>
         </span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-ink-700">
-        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
-      </div>
+      {bar}
     </div>
   );
 }
 
 export function MacroPills({ kcal, p, c, f, className }: { kcal: number; p: number; c: number; f: number; className?: string }) {
   return (
-    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-300", className)}>
-      <span className="num text-sm text-ink-100">{Math.round(kcal)} kcal</span>
-      <span><b className="text-prot">P</b> {Math.round(p)}g</span>
-      <span><b className="text-carb">C</b> {Math.round(c)}g</span>
-      <span><b className="text-fat">G</b> {Math.round(f)}g</span>
+    <div className={cn("flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted", className)}>
+      <span className="num text-sm font-normal text-fg">{Math.round(kcal)} kcal</span>
+      <span className="flex items-center gap-1"><i className="h-1.5 w-1.5 rounded-full bg-prot" />{Math.round(p)} P</span>
+      <span className="flex items-center gap-1"><i className="h-1.5 w-1.5 rounded-full bg-carb" />{Math.round(c)} C</span>
+      <span className="flex items-center gap-1"><i className="h-1.5 w-1.5 rounded-full bg-fat" />{Math.round(f)} G</span>
     </div>
   );
 }
 
 export function Spinner({ className }: { className?: string }) {
-  return <Loader2 className={cn("h-5 w-5 animate-spin text-lime-400", className)} />;
+  return <Loader2 className={cn("h-5 w-5 animate-spin text-accent", className)} />;
 }
 
 export function Loading({ text = "Cargando…" }: { text?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-16 text-sm text-ink-300">
+    <div className="animate-fade flex items-center justify-center gap-2 py-24 text-sm text-muted">
       <Spinner /> {text}
     </div>
   );
@@ -96,10 +162,10 @@ export function Loading({ text = "Cargando…" }: { text?: string }) {
 
 export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="rounded-xl border border-fat/40 bg-fat/10 p-3 text-sm text-fat">
+    <div className="rounded-2xl bg-fat/10 p-3.5 text-sm text-fat">
       {message}
       {onRetry && (
-        <button className="ml-2 underline" onClick={onRetry}>
+        <button className="ml-2 font-medium underline underline-offset-2" onClick={onRetry}>
           Reintentar
         </button>
       )}
@@ -108,8 +174,14 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () =
 }
 
 export function Notice({ children, tone = "info" }: { children: React.ReactNode; tone?: "info" | "warn" | "ok" }) {
-  const t = { info: "border-prot/30 bg-prot/10 text-prot", warn: "border-carb/40 bg-carb/10 text-carb", ok: "border-mint-400/40 bg-mint-400/10 text-mint-400" }[tone];
-  return <div className={cn("rounded-xl border p-3 text-xs leading-relaxed", t)}>{children}</div>;
+  const t = { info: "bg-surface-2 text-muted", warn: "bg-carb/10 text-fg", ok: "bg-pos/10 text-fg" }[tone];
+  const dot = { info: "bg-faint", warn: "bg-carb", ok: "bg-pos" }[tone];
+  return (
+    <div className={cn("flex gap-2.5 rounded-2xl p-3.5 text-[13px] leading-relaxed", t)}>
+      <span className={cn("mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full", dot)} />
+      <div>{children}</div>
+    </div>
+  );
 }
 
 export function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
@@ -126,12 +198,13 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-3xl border border-ink-700 bg-ink-900 p-5 safe-bottom sm:rounded-3xl">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="animate-fade absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
+      <div className="animate-sheet relative max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-t-4xl bg-surface p-6 pt-3 shadow-lift safe-bottom sm:rounded-4xl">
+        <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line sm:hidden" />
+        <div className="mb-5 flex items-center justify-between">
           <h2 className="h-display text-xl">{title}</h2>
-          <button onClick={onClose} aria-label="Cerrar" className="rounded-full p-1.5 text-ink-300 hover:bg-ink-800">
-            <X className="h-5 w-5" />
+          <button onClick={onClose} aria-label="Cerrar" className="rounded-full bg-surface-2 p-2 text-muted transition hover:text-fg">
+            <X className="h-4 w-4" />
           </button>
         </div>
         {children}
@@ -143,9 +216,9 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
 export function Field({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
     <label className="block">
-      <span className="label mb-1.5 block">{label}</span>
+      <span className="mb-1.5 block text-[12px] font-medium text-muted">{label}</span>
       {children}
-      {hint && <span className="mt-1 block text-[11px] text-ink-400">{hint}</span>}
+      {hint && <span className="mt-1 block text-[11px] text-faint">{hint}</span>}
     </label>
   );
 }
@@ -153,21 +226,27 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 export function Stat({ label, value, unit, sub, accent }: { label: string; value: string | number; unit?: string; sub?: string; accent?: boolean }) {
   return (
     <div className="card-tight">
-      <p className="label">{label}</p>
-      <p className={cn("num mt-1 text-2xl", accent && "text-lime-400")}>
-        {value}
-        {unit && <span className="ml-1 text-sm text-ink-400">{unit}</span>}
+      <p className="text-[12px] text-muted">{label}</p>
+      <p className={cn("num mt-1 text-[26px] leading-tight", accent && "text-accent")}>
+        {typeof value === "number" ? <CountUp value={value} decimals={Number.isInteger(value) ? 0 : 1} /> : value}
+        {unit && <span className="ml-1 text-sm text-faint">{unit}</span>}
       </p>
-      {sub && <p className="mt-0.5 text-[11px] text-ink-400">{sub}</p>}
+      {sub && <p className="mt-0.5 text-[11px] text-faint">{sub}</p>}
     </div>
   );
 }
 
+/** Selector con "píldora" que se desliza entre opciones. */
 export function Segmented<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { value: T; label: string }[] }) {
+  const idx = Math.max(0, options.findIndex((o) => o.value === value));
   return (
-    <div className="inline-flex rounded-xl border border-ink-700 bg-ink-850 p-1">
+    <div className="relative inline-grid rounded-full bg-surface-2 p-1" style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}>
+      <span
+        className="absolute bottom-1 top-1 rounded-full bg-surface shadow-soft transition-transform duration-500 ease-out"
+        style={{ width: `calc((100% - 8px) / ${options.length})`, transform: `translateX(${idx * 100}%)`, left: 4 }}
+      />
       {options.map((o) => (
-        <button key={o.value} onClick={() => onChange(o.value)} className={cn("rounded-lg px-3 py-1.5 text-xs font-semibold transition", value === o.value ? "bg-lime-400 text-ink-950" : "text-ink-300")}>
+        <button key={o.value} onClick={() => onChange(o.value)} className={cn("relative z-10 whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-medium transition-colors", value === o.value ? "text-fg" : "text-faint")}>
           {o.label}
         </button>
       ))}

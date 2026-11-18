@@ -38,10 +38,10 @@ export function energyBreakdown(p: Profile): EnergyBreakdown {
   return { bmr, daily_activity, exercise_avg, tdee_avg: bmr + daily_activity + exercise_avg };
 }
 
-/** TDEE de un día concreto: suma el gasto de entrenamiento solo si ese día se registró una sesión. */
-export function tdeeForDay(p: Profile, trainedToday: boolean): number {
+/** TDEE de un día concreto: basal + actividad cotidiana + lo quemado en los ejercicios registrados ese día. */
+export function tdeeForDay(p: Profile, exerciseKcal: number): number {
   const e = energyBreakdown(p);
-  return e.bmr + e.daily_activity + (trainedToday ? p.kcal_per_session : 0);
+  return e.bmr + e.daily_activity + Math.max(0, exerciseKcal);
 }
 
 /** Piso de seguridad: nunca sugerir objetivos por debajo del metabolismo basal ni de 1200/1500 kcal. */

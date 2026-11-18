@@ -158,6 +158,9 @@ export async function fetchWorkouts(from?: string): Promise<Workout[]> {
   if (error) throw new Error(error.message);
   return ((data ?? []) as Workout[]).map((w) => ({
     ...w,
+    kind: w.kind ?? "fuerza",
+    kcal_burned: w.kcal_burned === null || w.kcal_burned === undefined ? null : Number(w.kcal_burned),
+    duration_min: w.duration_min === null ? null : Number(w.duration_min),
     workout_exercises: [...w.workout_exercises]
       .sort((a, b) => a.position - b.position)
       .map((e) => ({ ...e, exercise_sets: [...e.exercise_sets].sort((a, b) => a.set_number - b.set_number).map((s) => toNum(s, ["weight_kg", "reps"])) })),

@@ -1133,6 +1133,1241 @@
   "is_estimate": false
  },
  {
+  "key": "mandarina",
+  "name": "Mandarina",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 53,
+  "protein_100g": 0.81,
+  "carbs_100g": 13.34,
+  "fat_100g": 0.31,
+  "fiber_100g": 1.8,
+  "servings": [
+   {
+    "label": "1 unidad mediana",
+    "grams": 88
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Tangerines, (mandarin oranges), raw",
+  "is_estimate": false
+ },
+ {
+  "key": "naranja",
+  "name": "Naranja",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 47,
+  "protein_100g": 0.94,
+  "carbs_100g": 11.75,
+  "fat_100g": 0.12,
+  "fiber_100g": 2.4,
+  "servings": [
+   {
+    "label": "1 unidad mediana",
+    "grams": 140
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Oranges, raw, all commercial varieties",
+  "is_estimate": false
+ },
+ {
+  "key": "pina",
+  "name": "Piña",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 50,
+  "protein_100g": 0.54,
+  "carbs_100g": 13.12,
+  "fat_100g": 0.12,
+  "fiber_100g": 1.4,
+  "servings": [
+   {
+    "label": "1 taza en trozos",
+    "grams": 165
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Pineapple, raw, all varieties",
+  "is_estimate": false
+ },
+ {
+  "key": "uvas",
+  "name": "Uvas",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Crudas",
+  "kcal_100g": 69,
+  "protein_100g": 0.72,
+  "carbs_100g": 18.1,
+  "fat_100g": 0.16,
+  "fiber_100g": 0.9,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 150
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Grapes, red or green (European type), raw",
+  "is_estimate": false
+ },
+ {
+  "key": "sandia",
+  "name": "Sandía",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 30,
+  "protein_100g": 0.61,
+  "carbs_100g": 7.55,
+  "fat_100g": 0.15,
+  "fiber_100g": 0.4,
+  "servings": [
+   {
+    "label": "1 tajada",
+    "grams": 280
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Watermelon, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "melon",
+  "name": "Melón",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Crudo",
+  "kcal_100g": 34,
+  "protein_100g": 0.84,
+  "carbs_100g": 8.16,
+  "fat_100g": 0.19,
+  "fiber_100g": 0.9,
+  "servings": [
+   {
+    "label": "1 taza en cubos",
+    "grams": 160
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Melons, cantaloupe, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "pera",
+  "name": "Pera",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Cruda, con cáscara",
+  "kcal_100g": 57,
+  "protein_100g": 0.36,
+  "carbs_100g": 15.23,
+  "fat_100g": 0.14,
+  "fiber_100g": 3.1,
+  "servings": [
+   {
+    "label": "1 unidad mediana",
+    "grams": 178
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Pears, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "kiwi",
+  "name": "Kiwi",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Crudo",
+  "kcal_100g": 61,
+  "protein_100g": 1.14,
+  "carbs_100g": 14.66,
+  "fat_100g": 0.52,
+  "fiber_100g": 3.0,
+  "servings": [
+   {
+    "label": "1 unidad",
+    "grams": 75
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Kiwifruit, green, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "arandanos",
+  "name": "Arándanos",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Crudos",
+  "kcal_100g": 57,
+  "protein_100g": 0.74,
+  "carbs_100g": 14.49,
+  "fat_100g": 0.33,
+  "fiber_100g": 2.4,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 148
+   },
+   {
+    "label": "1 puñado",
+    "grams": 50
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Blueberries, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "durazno",
+  "name": "Durazno",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Crudo",
+  "kcal_100g": 39,
+  "protein_100g": 0.91,
+  "carbs_100g": 9.54,
+  "fat_100g": 0.25,
+  "fiber_100g": 1.5,
+  "servings": [
+   {
+    "label": "1 unidad mediana",
+    "grams": 150
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Peaches, yellow, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "aguaymanto",
+  "name": "Aguaymanto",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Crudo",
+  "kcal_100g": 53,
+  "protein_100g": 1.9,
+  "carbs_100g": 11.2,
+  "fat_100g": 0.7,
+  "fiber_100g": null,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 140
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Groundcherries, (cape-gooseberries or poha), raw",
+  "is_estimate": false
+ },
+ {
+  "key": "chirimoya",
+  "name": "Chirimoya",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Pulpa cruda",
+  "kcal_100g": 75,
+  "protein_100g": 1.57,
+  "carbs_100g": 17.71,
+  "fat_100g": 0.68,
+  "fiber_100g": 3.0,
+  "servings": [
+   {
+    "label": "1/2 unidad (pulpa)",
+    "grams": 160
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Cherimoya, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "granadilla",
+  "name": "Granadilla / maracuyá (pulpa)",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Pulpa con semillas",
+  "kcal_100g": 97,
+  "protein_100g": 2.2,
+  "carbs_100g": 23.38,
+  "fat_100g": 0.7,
+  "fiber_100g": 10.4,
+  "servings": [
+   {
+    "label": "1 unidad (pulpa)",
+    "grams": 50
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Passion-fruit, (granadilla), purple, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "tuna_fruta",
+  "name": "Tuna (fruta)",
+  "category": "frutas",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 41,
+  "protein_100g": 0.73,
+  "carbs_100g": 9.57,
+  "fat_100g": 0.51,
+  "fiber_100g": 3.6,
+  "servings": [
+   {
+    "label": "1 unidad",
+    "grams": 100
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "fruta"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Prickly pears, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "pavo",
+  "name": "Pechuga de pavo asada",
+  "category": "proteinas",
+  "state": "cocido",
+  "preparation": "Asada, solo carne",
+  "kcal_100g": 147,
+  "protein_100g": 30.1,
+  "carbs_100g": 0,
+  "fat_100g": 2.08,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 100
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "carne",
+   "ave"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Turkey, whole, breast, meat only, roasted",
+  "is_estimate": false
+ },
+ {
+  "key": "cerdo_lomo",
+  "name": "Lomo de cerdo asado (magro)",
+  "category": "proteinas",
+  "state": "cocido",
+  "preparation": "Asado, sin grasa visible",
+  "kcal_100g": 143,
+  "protein_100g": 26.17,
+  "carbs_100g": 0,
+  "fat_100g": 3.51,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 110
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "carne",
+   "cerdo"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Pork, fresh, tenderloin, separable lean only, cooked, roasted",
+  "is_estimate": false
+ },
+ {
+  "key": "salmon",
+  "name": "Salmón cocido",
+  "category": "proteinas",
+  "state": "cocido",
+  "preparation": "Plancha/horno",
+  "kcal_100g": 206,
+  "protein_100g": 22.1,
+  "carbs_100g": 0,
+  "fat_100g": 12.35,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 filete",
+    "grams": 120
+   }
+  ],
+  "allergens": [
+   "pescado"
+  ],
+  "tags": [
+   "pescado"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Fish, salmon, Atlantic, farmed, cooked, dry heat",
+  "is_estimate": false
+ },
+ {
+  "key": "camarones",
+  "name": "Langostinos / camarones cocidos",
+  "category": "proteinas",
+  "state": "cocido",
+  "preparation": "Cocidos",
+  "kcal_100g": 99,
+  "protein_100g": 23.98,
+  "carbs_100g": 0.2,
+  "fat_100g": 0.28,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 100
+   }
+  ],
+  "allergens": [
+   "mariscos"
+  ],
+  "tags": [
+   "mariscos"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Crustaceans, shrimp, cooked",
+  "is_estimate": false
+ },
+ {
+  "key": "corazon_res",
+  "name": "Corazón de res cocido",
+  "category": "proteinas",
+  "state": "cocido",
+  "preparation": "Cocido",
+  "kcal_100g": 165,
+  "protein_100g": 28.48,
+  "carbs_100g": 0.15,
+  "fat_100g": 4.73,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 100
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "carne",
+   "res"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Beef, variety meats and by-products, heart, cooked, simmered",
+  "is_estimate": false
+ },
+ {
+  "key": "pollo_piel",
+  "name": "Pollo asado con piel (tipo a la brasa, sin papas)",
+  "category": "proteinas",
+  "state": "cocido",
+  "preparation": "Asado, carne y piel",
+  "kcal_100g": 239,
+  "protein_100g": 27.3,
+  "carbs_100g": 0,
+  "fat_100g": 13.6,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1/4 de pollo (sin hueso)",
+    "grams": 200
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "carne",
+   "ave"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Chicken, broilers or fryers, meat and skin, cooked, roasted",
+  "is_estimate": false
+ },
+ {
+  "key": "cottage",
+  "name": "Queso cottage bajo en grasa",
+  "category": "lacteos",
+  "state": "envasado",
+  "preparation": "2% grasa",
+  "kcal_100g": 81,
+  "protein_100g": 10.45,
+  "carbs_100g": 4.76,
+  "fat_100g": 2.27,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1/2 taza",
+    "grams": 113
+   }
+  ],
+  "allergens": [
+   "lacteos"
+  ],
+  "tags": [
+   "lacteo"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Cheese, cottage, lowfat, 2% milkfat",
+  "is_estimate": false
+ },
+ {
+  "key": "tofu",
+  "name": "Tofu firme",
+  "category": "proteinas",
+  "state": "envasado",
+  "preparation": "Crudo, firme",
+  "kcal_100g": 144,
+  "protein_100g": 15.78,
+  "carbs_100g": 4.28,
+  "fat_100g": 8.72,
+  "fiber_100g": 2.3,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 100
+   }
+  ],
+  "allergens": [
+   "soya"
+  ],
+  "tags": [
+   "vegetal"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Tofu, raw, firm, prepared with calcium sulfate",
+  "is_estimate": false
+ },
+ {
+  "key": "leche_entera",
+  "name": "Leche entera",
+  "category": "lacteos",
+  "state": "envasado",
+  "preparation": "Líquida",
+  "kcal_100g": 61,
+  "protein_100g": 3.15,
+  "carbs_100g": 4.8,
+  "fat_100g": 3.25,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 vaso",
+    "grams": 240
+   }
+  ],
+  "allergens": [
+   "lacteos"
+  ],
+  "tags": [
+   "lacteo"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Milk, whole, 3.25% milkfat, with added vitamin D",
+  "is_estimate": false
+ },
+ {
+  "key": "leche_almendras",
+  "name": "Bebida de almendras sin azúcar",
+  "category": "lacteos",
+  "state": "envasado",
+  "preparation": "Sin azúcar",
+  "kcal_100g": 15,
+  "protein_100g": 0.59,
+  "carbs_100g": 0.58,
+  "fat_100g": 1.1,
+  "fiber_100g": null,
+  "servings": [
+   {
+    "label": "1 vaso",
+    "grams": 240
+   }
+  ],
+  "allergens": [
+   "frutos_secos"
+  ],
+  "tags": [
+   "vegetal"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Beverages, almond milk, unsweetened, shelf stable",
+  "is_estimate": false
+ },
+ {
+  "key": "frejoles",
+  "name": "Frejoles sancochados (canario/pinto)",
+  "category": "menestras",
+  "state": "cocido",
+  "preparation": "Sancochados sin sal",
+  "kcal_100g": 143,
+  "protein_100g": 9.01,
+  "carbs_100g": 26.22,
+  "fat_100g": 0.65,
+  "fiber_100g": 9.0,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 171
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "menestra"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Beans, pinto, mature seeds, cooked, boiled, without salt",
+  "is_estimate": false
+ },
+ {
+  "key": "frejol_negro",
+  "name": "Frejol negro sancochado",
+  "category": "menestras",
+  "state": "cocido",
+  "preparation": "Sancochado sin sal",
+  "kcal_100g": 132,
+  "protein_100g": 8.86,
+  "carbs_100g": 23.71,
+  "fat_100g": 0.54,
+  "fiber_100g": 8.7,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 172
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "menestra"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Beans, black, mature seeds, cooked, boiled, without salt",
+  "is_estimate": false
+ },
+ {
+  "key": "garbanzos",
+  "name": "Garbanzos sancochados",
+  "category": "menestras",
+  "state": "cocido",
+  "preparation": "Sancochados sin sal",
+  "kcal_100g": 164,
+  "protein_100g": 8.86,
+  "carbs_100g": 27.42,
+  "fat_100g": 2.59,
+  "fiber_100g": 7.6,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 164
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "menestra"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Chickpeas (garbanzo beans), mature seeds, cooked, boiled, without salt",
+  "is_estimate": false
+ },
+ {
+  "key": "pallares",
+  "name": "Pallares sancochados",
+  "category": "menestras",
+  "state": "cocido",
+  "preparation": "Sancochados sin sal",
+  "kcal_100g": 115,
+  "protein_100g": 7.8,
+  "carbs_100g": 20.88,
+  "fat_100g": 0.38,
+  "fiber_100g": 7.0,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 188
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "menestra"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Lima beans, large, mature seeds, cooked, boiled, without salt",
+  "is_estimate": false
+ },
+ {
+  "key": "arroz_integral",
+  "name": "Arroz integral cocido",
+  "category": "cereales",
+  "state": "cocido",
+  "preparation": "Cocido sin sal",
+  "kcal_100g": 111,
+  "protein_100g": 2.58,
+  "carbs_100g": 22.96,
+  "fat_100g": 0.9,
+  "fiber_100g": 1.8,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 195
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "cereal"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Rice, brown, long-grain, cooked",
+  "is_estimate": false
+ },
+ {
+  "key": "fideos",
+  "name": "Fideos / pasta cocida",
+  "category": "cereales",
+  "state": "cocido",
+  "preparation": "Cocida sin sal",
+  "kcal_100g": 158,
+  "protein_100g": 5.8,
+  "carbs_100g": 30.86,
+  "fat_100g": 0.93,
+  "fiber_100g": 1.8,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 140
+   }
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "tags": [
+   "cereal"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Pasta, cooked, enriched, without added salt",
+  "is_estimate": false
+ },
+ {
+  "key": "galleta_soda",
+  "name": "Galletas de soda",
+  "category": "cereales",
+  "state": "envasado",
+  "preparation": "",
+  "kcal_100g": 418,
+  "protein_100g": 9.46,
+  "carbs_100g": 74.05,
+  "fat_100g": 8.64,
+  "fiber_100g": 2.8,
+  "servings": [
+   {
+    "label": "1 paquete (6 unid.)",
+    "grams": 30
+   }
+  ],
+  "allergens": [
+   "gluten"
+  ],
+  "tags": [
+   "cereal"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Crackers, saltines (includes oyster, soda, soup)",
+  "is_estimate": false
+ },
+ {
+  "key": "yuca",
+  "name": "Yuca (pesar cruda)",
+  "category": "tuberculos",
+  "state": "crudo",
+  "preparation": "Cruda, sin cáscara",
+  "kcal_100g": 160,
+  "protein_100g": 1.36,
+  "carbs_100g": 38.06,
+  "fat_100g": 0.28,
+  "fiber_100g": 1.8,
+  "servings": [
+   {
+    "label": "1 trozo mediano (crudo)",
+    "grams": 120
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "tuberculo"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Cassava, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "papas_fritas",
+  "name": "Papas fritas (tipo pollería)",
+  "category": "tuberculos",
+  "state": "preparado",
+  "preparation": "Fritas en aceite vegetal",
+  "kcal_100g": 312,
+  "protein_100g": 3.43,
+  "carbs_100g": 41.44,
+  "fat_100g": 14.73,
+  "fiber_100g": 3.8,
+  "servings": [
+   {
+    "label": "porción mediana",
+    "grams": 150
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "tuberculo",
+   "frito"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Fast foods, potato, french fried in vegetable oil",
+  "is_estimate": false
+ },
+ {
+  "key": "almendras",
+  "name": "Almendras",
+  "category": "grasas",
+  "state": "crudo",
+  "preparation": "Crudas",
+  "kcal_100g": 579,
+  "protein_100g": 21.15,
+  "carbs_100g": 21.55,
+  "fat_100g": 49.93,
+  "fiber_100g": 12.5,
+  "servings": [
+   {
+    "label": "1 puñado (20 unid.)",
+    "grams": 24
+   }
+  ],
+  "allergens": [
+   "frutos_secos"
+  ],
+  "tags": [
+   "fruto_seco"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Nuts, almonds",
+  "is_estimate": false
+ },
+ {
+  "key": "mani",
+  "name": "Maní tostado sin sal",
+  "category": "grasas",
+  "state": "envasado",
+  "preparation": "Tostado",
+  "kcal_100g": 585,
+  "protein_100g": 24.35,
+  "carbs_100g": 21.26,
+  "fat_100g": 49.66,
+  "fiber_100g": 8.4,
+  "servings": [
+   {
+    "label": "1 puñado",
+    "grams": 28
+   }
+  ],
+  "allergens": [
+   "mani"
+  ],
+  "tags": [
+   "fruto_seco"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Peanuts, all types, dry-roasted, without salt",
+  "is_estimate": false
+ },
+ {
+  "key": "nueces",
+  "name": "Nueces",
+  "category": "grasas",
+  "state": "crudo",
+  "preparation": "Crudas",
+  "kcal_100g": 654,
+  "protein_100g": 15.23,
+  "carbs_100g": 13.71,
+  "fat_100g": 65.21,
+  "fiber_100g": 6.7,
+  "servings": [
+   {
+    "label": "1 puñado",
+    "grams": 28
+   }
+  ],
+  "allergens": [
+   "frutos_secos"
+  ],
+  "tags": [
+   "fruto_seco"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Nuts, walnuts, english",
+  "is_estimate": false
+ },
+ {
+  "key": "chia",
+  "name": "Semillas de chía",
+  "category": "grasas",
+  "state": "crudo",
+  "preparation": "Secas",
+  "kcal_100g": 486,
+  "protein_100g": 16.54,
+  "carbs_100g": 42.12,
+  "fat_100g": 30.74,
+  "fiber_100g": 34.4,
+  "servings": [
+   {
+    "label": "1 cda",
+    "grams": 12
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "semilla"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Seeds, chia seeds, dried",
+  "is_estimate": false
+ },
+ {
+  "key": "miel",
+  "name": "Miel de abeja",
+  "category": "otros",
+  "state": "envasado",
+  "preparation": "",
+  "kcal_100g": 304,
+  "protein_100g": 0.3,
+  "carbs_100g": 82.4,
+  "fat_100g": 0,
+  "fiber_100g": 0.2,
+  "servings": [
+   {
+    "label": "1 cda",
+    "grams": 21
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "dulce"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Honey",
+  "is_estimate": false
+ },
+ {
+  "key": "chocolate_70",
+  "name": "Chocolate oscuro 70–85%",
+  "category": "otros",
+  "state": "envasado",
+  "preparation": "",
+  "kcal_100g": 598,
+  "protein_100g": 7.79,
+  "carbs_100g": 45.9,
+  "fat_100g": 42.63,
+  "fiber_100g": 10.9,
+  "servings": [
+   {
+    "label": "2 cuadraditos",
+    "grams": 20
+   }
+  ],
+  "allergens": [
+   "lacteos"
+  ],
+  "tags": [
+   "dulce"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Chocolate, dark, 70-85% cacao solids",
+  "is_estimate": false
+ },
+ {
+  "key": "mayonesa",
+  "name": "Mayonesa",
+  "category": "grasas",
+  "state": "envasado",
+  "preparation": "Regular",
+  "kcal_100g": 680,
+  "protein_100g": 0.96,
+  "carbs_100g": 0.57,
+  "fat_100g": 74.85,
+  "fiber_100g": 0,
+  "servings": [
+   {
+    "label": "1 cda",
+    "grams": 14
+   }
+  ],
+  "allergens": [
+   "huevo"
+  ],
+  "tags": [
+   "grasa"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Salad dressing, mayonnaise, regular",
+  "is_estimate": false
+ },
+ {
+  "key": "espinaca",
+  "name": "Espinaca",
+  "category": "verduras",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 23,
+  "protein_100g": 2.86,
+  "carbs_100g": 3.63,
+  "fat_100g": 0.39,
+  "fiber_100g": 2.2,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 30
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Spinach, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "pepino",
+  "name": "Pepino",
+  "category": "verduras",
+  "state": "crudo",
+  "preparation": "Crudo, con cáscara",
+  "kcal_100g": 15,
+  "protein_100g": 0.65,
+  "carbs_100g": 3.63,
+  "fat_100g": 0.11,
+  "fiber_100g": 0.5,
+  "servings": [
+   {
+    "label": "1/2 unidad",
+    "grams": 150
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Cucumber, with peel, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "betarraga",
+  "name": "Betarraga sancochada",
+  "category": "verduras",
+  "state": "cocido",
+  "preparation": "Sancochada",
+  "kcal_100g": 44,
+  "protein_100g": 1.68,
+  "carbs_100g": 9.96,
+  "fat_100g": 0.18,
+  "fiber_100g": 2.0,
+  "servings": [
+   {
+    "label": "1/2 taza",
+    "grams": 85
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Beets, cooked, boiled, drained",
+  "is_estimate": false
+ },
+ {
+  "key": "vainitas",
+  "name": "Vainitas sancochadas",
+  "category": "verduras",
+  "state": "cocido",
+  "preparation": "Sancochadas",
+  "kcal_100g": 35,
+  "protein_100g": 1.89,
+  "carbs_100g": 7.88,
+  "fat_100g": 0.28,
+  "fiber_100g": 3.2,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 125
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Beans, snap, green, cooked, boiled, drained, without salt",
+  "is_estimate": false
+ },
+ {
+  "key": "zucchini",
+  "name": "Zapallito italiano",
+  "category": "verduras",
+  "state": "crudo",
+  "preparation": "Crudo",
+  "kcal_100g": 17,
+  "protein_100g": 1.21,
+  "carbs_100g": 3.11,
+  "fat_100g": 0.32,
+  "fiber_100g": 1.0,
+  "servings": [
+   {
+    "label": "1 unidad",
+    "grams": 200
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Squash, summer, zucchini, includes skin, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "champinones",
+  "name": "Champiñones",
+  "category": "verduras",
+  "state": "crudo",
+  "preparation": "Crudos",
+  "kcal_100g": 22,
+  "protein_100g": 3.09,
+  "carbs_100g": 3.26,
+  "fat_100g": 0.34,
+  "fiber_100g": 1.0,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 70
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Mushrooms, white, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "pimiento",
+  "name": "Pimiento rojo",
+  "category": "verduras",
+  "state": "crudo",
+  "preparation": "Crudo",
+  "kcal_100g": 31,
+  "protein_100g": 0.99,
+  "carbs_100g": 6.03,
+  "fat_100g": 0.3,
+  "fiber_100g": 2.1,
+  "servings": [
+   {
+    "label": "1/2 unidad",
+    "grams": 60
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Peppers, sweet, red, raw",
+  "is_estimate": false
+ },
+ {
+  "key": "coliflor",
+  "name": "Coliflor",
+  "category": "verduras",
+  "state": "crudo",
+  "preparation": "Cruda",
+  "kcal_100g": 25,
+  "protein_100g": 1.92,
+  "carbs_100g": 4.97,
+  "fat_100g": 0.28,
+  "fiber_100g": 2.0,
+  "servings": [
+   {
+    "label": "1 taza",
+    "grams": 107
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "verdura"
+  ],
+  "source": "USDA FoodData Central (SR Legacy)",
+  "source_ref": "Cauliflower, raw",
+  "is_estimate": false
+ },
+ {
   "key": "ensalada",
   "name": "Ensalada fresca (lechuga, tomate, cebolla) sin aderezo",
   "category": "verduras",
@@ -1296,6 +2531,199 @@
   ],
   "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
   "source_ref": "Ingredientes: Papa sancochada (sin cáscara) 200 g, Queso fresco 30 g, Leche evaporada entera 40 g, Aceite vegetal 10 g, Pan blanco 10 g, Huevo sancochado (duro) 25 g",
+  "is_estimate": true
+ },
+ {
+  "key": "causa",
+  "name": "Causa limeña de pollo",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar por porción: papa sancochada 150 g, pollo 60 g, mayonesa 15 g, palta 30 g, aceite 5 g, limón 5 g. Rinde ~265 g.",
+  "kcal_100g": 159.8,
+  "protein_100g": 8.28,
+  "carbs_100g": 12.48,
+  "fat_100g": 8.66,
+  "fiber_100g": 1.9,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 250
+   }
+  ],
+  "allergens": [
+   "huevo"
+  ],
+  "tags": [
+   "carne",
+   "ave",
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Papa sancochada (sin cáscara) 150 g, Pechuga de pollo a la plancha (sin piel) 60 g, Mayonesa 15 g, Palta 30 g, Aceite vegetal 5 g, Jugo de limón 5 g",
+  "is_estimate": true
+ },
+ {
+  "key": "chaufa",
+  "name": "Arroz chaufa de pollo",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar por plato: arroz cocido 200 g, pollo 70 g, huevo 30 g, cebolla china 15 g, aceite 12 g. Rinde ~320 g.",
+  "kcal_100g": 165.8,
+  "protein_100g": 9.7,
+  "carbs_100g": 18.13,
+  "fat_100g": 5.61,
+  "fiber_100g": 0.33,
+  "servings": [
+   {
+    "label": "1 plato",
+    "grams": 350
+   }
+  ],
+  "allergens": [
+   "huevo"
+  ],
+  "tags": [
+   "carne",
+   "ave",
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Arroz blanco cocido 200 g, Pechuga de pollo a la plancha (sin piel) 70 g, Huevo entero crudo 30 g, Cebolla 15 g, Aceite vegetal 12 g",
+  "is_estimate": true
+ },
+ {
+  "key": "tallarines_verdes",
+  "name": "Tallarines verdes (sin bistec)",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar por plato: fideos cocidos 200 g, espinaca 40 g, queso fresco 25 g, leche evaporada 40 g, aceite 8 g. Rinde ~310 g.",
+  "kcal_100g": 169.1,
+  "protein_100g": 6.45,
+  "carbs_100g": 21.91,
+  "fat_100g": 6.13,
+  "fiber_100g": 1.45,
+  "servings": [
+   {
+    "label": "1 plato",
+    "grams": 310
+   }
+  ],
+  "allergens": [
+   "gluten",
+   "lacteos"
+  ],
+  "tags": [
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Fideos / pasta cocida 200 g, Espinaca 40 g, Queso fresco 25 g, Leche evaporada entera 40 g, Aceite vegetal 8 g",
+  "is_estimate": true
+ },
+ {
+  "key": "seco_res",
+  "name": "Seco de res (sin arroz ni frejoles)",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar por porción: carne de res 150 g, cebolla 40 g, arvejas 30 g, zanahoria 30 g, aceite 10 g. Rinde ~250 g.",
+  "kcal_100g": 161.6,
+  "protein_100g": 12.91,
+  "carbs_100g": 4.36,
+  "fat_100g": 10.08,
+  "fiber_100g": 1.15,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 250
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "carne",
+   "res",
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Carne de res molida 90% magra cruda 150 g, Cebolla 40 g, Arvejas cocidas 30 g, Zanahoria 30 g, Aceite vegetal 10 g",
+  "is_estimate": true
+ },
+ {
+  "key": "tacu_tacu",
+  "name": "Tacu tacu",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar: arroz cocido 150 g, frejoles sancochados 120 g, aceite 15 g. Rinde ~280 g.",
+  "kcal_100g": 178.3,
+  "protein_100g": 5.3,
+  "carbs_100g": 26.34,
+  "fat_100g": 5.79,
+  "fiber_100g": 4.07,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 280
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Arroz blanco cocido 150 g, Frejoles sancochados (canario/pinto) 120 g, Aceite vegetal 15 g",
+  "is_estimate": true
+ },
+ {
+  "key": "sudado",
+  "name": "Sudado de pescado (sin arroz)",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar: pescado 180 g, tomate 80 g, cebolla 60 g, aceite 8 g. Rinde ~320 g.",
+  "kcal_100g": 88.7,
+  "protein_100g": 10.78,
+  "carbs_100g": 2.72,
+  "fat_100g": 3.69,
+  "fiber_100g": 0.62,
+  "servings": [
+   {
+    "label": "1 porción",
+    "grams": 320
+   }
+  ],
+  "allergens": [
+   "pescado"
+  ],
+  "tags": [
+   "pescado",
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Pescado blanco crudo (corvina/lenguado) 180 g, Tomate 80 g, Cebolla 60 g, Aceite vegetal 8 g",
+  "is_estimate": true
+ },
+ {
+  "key": "anticuchos",
+  "name": "Anticuchos de corazón (sin papa)",
+  "category": "platos_peruanos",
+  "state": "preparado",
+  "preparation": "Receta estándar: corazón de res cocido 150 g, aceite 5 g. Rinde ~150 g (2 palitos).",
+  "kcal_100g": 194.5,
+  "protein_100g": 28.48,
+  "carbs_100g": 0.15,
+  "fat_100g": 8.06,
+  "fiber_100g": 0.0,
+  "servings": [
+   {
+    "label": "2 palitos",
+    "grams": 150
+   }
+  ],
+  "allergens": [],
+  "tags": [
+   "carne",
+   "res",
+   "plato"
+  ],
+  "source": "Cálculo FitTrack por receta (ingredientes USDA FoodData Central)",
+  "source_ref": "Ingredientes: Corazón de res cocido 150 g, Aceite vegetal 5 g",
   "is_estimate": true
  }
 ]

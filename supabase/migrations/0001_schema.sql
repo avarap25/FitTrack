@@ -332,20 +332,30 @@ create trigger trg_set_owner before insert or update on public.exercise_sets
 -- =====================================================================
 -- Alta de usuario: perfil, objetivos, preferencias y rutina inicial
 -- =====================================================================
+-- Crea los datos iniciales de una usuaria. Se usa al registrarse y para
+-- recuperar cuentas existentes si se reinicia la base.
+create or replace function public.fittrack_bootstrap_user(p_uid uuid, p_email text) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if exists (select 1 from public.profiles where id = p_uid) then return; end if;
+  insert into public.profiles (id, display_name) values (p_uid, split_part(p_email, '@', 1))
+    on conflict (id) do nothing;
+  insert into public.nutrition_goals (user_id, calories, protein_g, carbs_g, fat_g, origin, note)
+    values (p_uid, 1750, 125, 190, 55, 'manual', 'Objetivo inicial configurado');
+  insert into public.user_preferences (user_id) values (p_uid) on conflict do nothing;
+  insert into public.routines (user_id, name, muscle_groups, day_order, exercises) values
+    (p_uid, 'Día 1', 'Glúteos y femorales', 1, '[{"name":"Hip thrust","sets":4,"reps":12},{"name":"Peso muerto rumano","sets":4,"reps":10},{"name":"Curl femoral","sets":3,"reps":12},{"name":"Patada de glúteo en polea","sets":3,"reps":15}]'),
+    (p_uid, 'Día 2', 'Espalda y bíceps', 2, '[{"name":"Jalón al pecho","sets":4,"reps":10},{"name":"Remo con mancuerna","sets":3,"reps":12},{"name":"Remo sentado en polea","sets":3,"reps":12},{"name":"Curl de bíceps con mancuernas","sets":3,"reps":12}]'),
+    (p_uid, 'Día 3', 'Cuádriceps', 3, '[{"name":"Sentadilla","sets":4,"reps":10},{"name":"Prensa de piernas","sets":4,"reps":12},{"name":"Extensión de cuádriceps","sets":3,"reps":15},{"name":"Zancadas","sets":3,"reps":12}]'),
+    (p_uid, 'Día 4', 'Hombros y tríceps', 4, '[{"name":"Press militar con mancuernas","sets":4,"reps":10},{"name":"Elevaciones laterales","sets":3,"reps":15},{"name":"Fondos en banco","sets":3,"reps":12},{"name":"Extensión de tríceps en polea","sets":3,"reps":12}]');
+  insert into public.weight_logs (user_id, weight_kg, note) values (p_uid, 68, 'Peso inicial');
+end $$;
+revoke all on function public.fittrack_bootstrap_user(uuid, text) from public, anon, authenticated;
+
 create or replace function public.handle_new_user() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
-  insert into public.profiles (id, display_name) values (new.id, split_part(new.email, '@', 1))
-    on conflict (id) do nothing;
-  insert into public.nutrition_goals (user_id, calories, protein_g, carbs_g, fat_g, origin, note)
-    values (new.id, 1750, 125, 190, 55, 'manual', 'Objetivo inicial configurado');
-  insert into public.user_preferences (user_id) values (new.id) on conflict do nothing;
-  insert into public.routines (user_id, name, muscle_groups, day_order, exercises) values
-    (new.id, 'Día 1', 'Glúteos y femorales', 1, '[{"name":"Hip thrust","sets":4,"reps":12},{"name":"Peso muerto rumano","sets":4,"reps":10},{"name":"Curl femoral","sets":3,"reps":12},{"name":"Patada de glúteo en polea","sets":3,"reps":15}]'),
-    (new.id, 'Día 2', 'Espalda y bíceps', 2, '[{"name":"Jalón al pecho","sets":4,"reps":10},{"name":"Remo con mancuerna","sets":3,"reps":12},{"name":"Remo sentado en polea","sets":3,"reps":12},{"name":"Curl de bíceps con mancuernas","sets":3,"reps":12}]'),
-    (new.id, 'Día 3', 'Cuádriceps', 3, '[{"name":"Sentadilla","sets":4,"reps":10},{"name":"Prensa de piernas","sets":4,"reps":12},{"name":"Extensión de cuádriceps","sets":3,"reps":15},{"name":"Zancadas","sets":3,"reps":12}]'),
-    (new.id, 'Día 4', 'Hombros y tríceps', 4, '[{"name":"Press militar con mancuernas","sets":4,"reps":10},{"name":"Elevaciones laterales","sets":3,"reps":15},{"name":"Fondos en banco","sets":3,"reps":12},{"name":"Extensión de tríceps en polea","sets":3,"reps":12}]');
-  insert into public.weight_logs (user_id, weight_kg, note) values (new.id, 68, 'Peso inicial');
+  perform public.fittrack_bootstrap_user(new.id, new.email);
   return new;
 end $$;
 
@@ -362,12 +372,16 @@ values
   ('progress-photos', 'progress-photos', false, 8388608, array['image/jpeg','image/png','image/webp'])
 on conflict (id) do nothing;
 
+drop policy if exists "photos_select_own" on storage.objects;
 create policy "photos_select_own" on storage.objects for select to authenticated
   using (bucket_id in ('food-photos','progress-photos') and (storage.foldername(name))[1] = auth.uid()::text);
+drop policy if exists "photos_insert_own" on storage.objects;
 create policy "photos_insert_own" on storage.objects for insert to authenticated
   with check (bucket_id in ('food-photos','progress-photos') and (storage.foldername(name))[1] = auth.uid()::text);
+drop policy if exists "photos_update_own" on storage.objects;
 create policy "photos_update_own" on storage.objects for update to authenticated
   using (bucket_id in ('food-photos','progress-photos') and (storage.foldername(name))[1] = auth.uid()::text);
+drop policy if exists "photos_delete_own" on storage.objects;
 create policy "photos_delete_own" on storage.objects for delete to authenticated
   using (bucket_id in ('food-photos','progress-photos') and (storage.foldername(name))[1] = auth.uid()::text);
 

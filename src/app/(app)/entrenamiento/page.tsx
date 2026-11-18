@@ -3,12 +3,19 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { ChevronDown, Plus, Trash2, TrendingDown, TrendingUp, Minus } from "lucide-react";
-import { ErrorBox, Field, Loading, Notice, PageHeader, Segmented, Sheet, Spinner, Stat } from "@/components/ui";
-import { fetchWorkouts, uid } from "@/lib/data";
+import { useChartColors } from "@/components/theme";
+import { ErrorBox, Field, Loading, Notice, PageHeader, Segmented, Sheet, Spinner, Stat, cn } from "@/components/ui";
+import { useApp } from "@/components/AppProvider";
+import { Guide } from "@/components/Pets";
+import { exerciseTips, generalTips, progressionTip, sessionsFor } from "@/lib/coach";
+import { ACTIVITIES, activityByKey, estimateBurn, estimateStrengthMinutes, workoutKcal, type Intensity } from "@/lib/exercise";
+import { addDaysIso, weekStart } from "@/lib/stats";
+import { fetchDailyTotals, fetchWorkouts, uid } from "@/lib/data";
 import { fmtDate, isoDate } from "@/lib/stats";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import type { Routine, RoutineExercise, Workout } from "@/lib/types";
 
+const tip = (c: ReturnType<typeof useChartColors>) => ({ background: c.surface, border: "none", borderRadius: 14, fontSize: 12, color: c.fg, boxShadow: "0 8px 24px -8px rgba(0,0,0,.25)" });
 type Tab = "historial" | "progreso" | "rutinas";
 
 interface DraftSet { reps: string; weight: string }
@@ -36,13 +43,22 @@ function Training() {
     load();
   }, [load]);
 
-  const thisWeek = useMemo(() => {
-    const d = new Date();
-    const monday = new Date(d);
-    monday.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-    const m = isoDate(monday);
-    return (workouts ?? []).filter((w) => w.date >= m).length;
-  }, [workouts]);
+  const { profile, goal } = useApp();
+  const [avgProt, setAvgProt] = useState<number | null>(null);
+  useEffect(() => {
+    fetchDailyTotals(addDaysIso(isoDate(), -14), isoDate())
+      .then((d) => setAvgProt(d.length >= 4 ? d.reduce((a, x) => a + x.protein_g, 0) / d.length : null))
+      .catch(() => {});
+  }, []);
+  const weekList = useMemo(() => (workouts ?? []).filter((w) => w.date >= weekStart(isoDate())), [workouts]);
+  const thisWeek = weekList.length;
+  const weekKcal = weekList.reduce((a, w) => a + workoutKcal(w, profile.kcal_per_session), 0);
+  const tips = useMemo(() => {
+    if (!workouts) return [];
+    const g = generalTips({ workouts, routines, trainingDaysGoal: profile.training_days_per_week, goal: profile.nutrition_objective, avgProtein: avgProt, proteinGoal: goal.protein_g });
+    const e = exerciseTips(workouts, routines, 3);
+    return [...g.slice(0, 2), ...e, ...g.slice(2)].map((t) => ({ text: t.exercise ? `${t.title}: ${t.text}` : `${t.title}. ${t.text}`, tone: t.tone }));
+  }, [workouts, routines, profile, avgProt, goal.protein_g]);
 
   // sugerir el siguiente día de la rutina según el último entrenamiento
   const nextRoutine = useMemo(() => {
@@ -59,29 +75,30 @@ function Training() {
   }
 
   return (
-    <div className="space-y-4">
-      <PageHeader kicker="Gimnasio" title="Entrenamiento" right={<button className="btn-primary" onClick={() => setEditorOpen(true)}><Plus className="h-4 w-4" /> Nuevo</button>} />
+    <div className="stagger space-y-4">
+      <PageHeader kicker="Gimnasio y cardio" title="Entrenamiento" right={<button className="btn-primary" onClick={() => setEditorOpen(true)}><Plus className="h-4 w-4" /> Nuevo</button>} />
       {error && <ErrorBox message={error} onRetry={load} />}
       {!workouts && !error && <Loading />}
       {workouts && (
         <>
+          <Guide kind="scottie" title="Tu entrenador" messages={tips} />
           <div className="grid grid-cols-3 gap-2">
-            <Stat label="Esta semana" value={thisWeek} unit="ses." accent />
-            <Stat label="Total" value={workouts.length} unit="ses." />
+            <Stat label="Esta semana" value={thisWeek} unit={`/${profile.training_days_per_week}`} accent />
+            <Stat label="🔥 Quemado" value={Math.round(weekKcal)} unit="kcal" sub="esta semana" />
             <Stat label="Toca hoy" value={nextRoutine?.name ?? "—"} sub={nextRoutine?.muscle_groups} />
           </div>
           <Segmented value={tab} onChange={setTab} options={[{ value: "historial", label: "Historial" }, { value: "progreso", label: "Cargas" }, { value: "rutinas", label: "Rutinas" }]} />
-          {tab === "historial" && <History workouts={workouts} onDelete={removeWorkout} />}
-          {tab === "progreso" && <ExerciseProgress workouts={workouts} />}
+          {tab === "historial" && <History workouts={workouts} onDelete={removeWorkout} fallbackKcal={profile.kcal_per_session} />}
+          {tab === "progreso" && <ExerciseProgress workouts={workouts} routines={routines} />}
           {tab === "rutinas" && <Routines routines={routines} onChange={load} />}
         </>
       )}
-      <WorkoutEditor open={editorOpen} routines={routines} suggested={nextRoutine} workouts={workouts ?? []} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); load(); }} />
+      <WorkoutEditor open={editorOpen} weightKg={profile.current_weight_kg} routines={routines} suggested={nextRoutine} workouts={workouts ?? []} onClose={() => setEditorOpen(false)} onSaved={() => { setEditorOpen(false); load(); }} />
     </div>
   );
 }
 
-function History({ workouts, onDelete }: { workouts: Workout[]; onDelete: (id: string) => void }) {
+function History({ workouts, onDelete, fallbackKcal }: { workouts: Workout[]; onDelete: (id: string) => void; fallbackKcal: number }) {
   const [open, setOpen] = useState<string | null>(null);
   if (!workouts.length) return <Notice tone="info">Aún no registras entrenamientos. Toca &quot;Nuevo&quot; para empezar.</Notice>;
   return (
@@ -92,23 +109,30 @@ function History({ workouts, onDelete }: { workouts: Workout[]; onDelete: (id: s
         return (
           <li key={w.id} className="card">
             <button className="flex w-full items-center justify-between text-left" onClick={() => setOpen(isOpen ? null : w.id)}>
-              <div>
-                <p className="label text-lime-400">{fmtDate(w.date, { weekday: "short", day: "numeric", month: "short" })}</p>
-                <p className="h-display text-lg">{w.muscle_group}</p>
-                <p className="text-[11px] text-ink-400">{w.workout_exercises.length} ejercicios · volumen {Math.round(vol).toLocaleString("es-PE")} kg</p>
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-surface-2 text-[22px]">{w.kind === "cardio" ? activityByKey(w.activity).emoji : "🏋️"}</span>
+                <div>
+                  <p className="text-[12px] text-muted first-letter:uppercase">{fmtDate(w.date, { weekday: "short", day: "numeric", month: "short" })}</p>
+                  <p className="serif text-[18px] leading-tight">{w.muscle_group}</p>
+                  <p className="text-[11px] text-faint">
+                    🔥 ~{Math.round(workoutKcal(w, fallbackKcal))} kcal
+                    {w.duration_min ? ` · ${w.duration_min} min` : ""}
+                    {w.kind !== "cardio" ? ` · ${w.workout_exercises.length} ejercicios · ${Math.round(vol).toLocaleString("es-PE")} kg de volumen` : w.intensity ? ` · ${w.intensity}` : ""}
+                  </p>
+                </div>
               </div>
               <ChevronDown className={`h-5 w-5 transition ${isOpen ? "rotate-180" : ""}`} />
             </button>
             {isOpen && (
-              <div className="mt-3 space-y-3 border-t border-ink-700 pt-3">
+              <div className="mt-3 space-y-3 border-t border-line pt-3">
                 {w.workout_exercises.map((e) => (
                   <div key={e.id}>
                     <p className="text-sm font-semibold">{e.name}</p>
-                    <p className="text-xs text-ink-300">{e.exercise_sets.map((s) => `${s.reps}×${s.weight_kg}kg`).join(" · ")}</p>
-                    {e.comment && <p className="text-[11px] italic text-ink-400">{e.comment}</p>}
+                    <p className="text-xs text-muted">{e.exercise_sets.map((s) => `${s.reps}×${s.weight_kg}kg`).join(" · ")}</p>
+                    {e.comment && <p className="text-[11px] italic text-faint">{e.comment}</p>}
                   </div>
                 ))}
-                {w.notes && <p className="text-xs text-ink-300">Notas: {w.notes}</p>}
+                {w.notes && <p className="text-xs text-muted">Notas: {w.notes}</p>}
                 <button className="btn-danger py-1.5 text-xs" onClick={() => onDelete(w.id)}><Trash2 className="h-3.5 w-3.5" /> Eliminar</button>
               </div>
             )}
@@ -136,7 +160,8 @@ function exerciseHistory(workouts: Workout[], name: string) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-function ExerciseProgress({ workouts }: { workouts: Workout[] }) {
+function ExerciseProgress({ workouts, routines }: { workouts: Workout[]; routines: Routine[] }) {
+  const cc = useChartColors();
   const names = useMemo(() => [...new Set(workouts.flatMap((w) => w.workout_exercises.map((e) => e.name.trim())))].sort(), [workouts]);
   const [name, setName] = useState(names[0] ?? "");
   useEffect(() => {
@@ -147,11 +172,14 @@ function ExerciseProgress({ workouts }: { workouts: Workout[] }) {
   const last = hist.at(-1);
   const prev = hist.at(-2);
   const delta = last && prev ? last.volume - prev.volume : null;
+  const target = routines.flatMap((r) => r.exercises).find((e) => e.name.toLowerCase() === name.toLowerCase())?.reps ?? null;
+  const advice = progressionTip(name, sessionsFor(workouts, name), target);
   return (
     <div className="space-y-3">
       <select className="input" value={name} onChange={(e) => setName(e.target.value)}>
         {names.map((n) => <option key={n}>{n}</option>)}
       </select>
+      {advice && <Notice tone={advice.tone}><b>Para la próxima:</b> {advice.text}</Notice>}
       {last && (
         <div className="grid grid-cols-3 gap-2">
           <Stat label="Carga máx." value={last.maxKg} unit="kg" accent />
@@ -160,29 +188,32 @@ function ExerciseProgress({ workouts }: { workouts: Workout[] }) {
         </div>
       )}
       {delta !== null && (
-        <p className="flex items-center gap-1.5 text-xs text-ink-300">
-          {delta > 0 ? <TrendingUp className="h-4 w-4 text-mint-400" /> : delta < 0 ? <TrendingDown className="h-4 w-4 text-fat" /> : <Minus className="h-4 w-4" />}
+        <p className="flex items-center gap-1.5 text-xs text-muted">
+          {delta > 0 ? <TrendingUp className="h-4 w-4 text-pos" /> : delta < 0 ? <TrendingDown className="h-4 w-4 text-fat" /> : <Minus className="h-4 w-4" />}
           {delta > 0 ? "Subiste el volumen respecto a la sesión anterior." : delta < 0 ? "Volumen menor que la sesión anterior: normal en días de descanso activo o si estás en déficit." : "Mismo volumen que la sesión anterior."}
         </p>
       )}
       <div className="card h-56">
         <ResponsiveContainer>
           <LineChart data={hist.map((h) => ({ ...h, label: fmtDate(h.date) }))} margin={{ left: -20, right: 8, top: 8 }}>
-            <CartesianGrid stroke="#232A31" vertical={false} />
-            <XAxis dataKey="label" stroke="#6B7783" fontSize={11} />
-            <YAxis stroke="#6B7783" fontSize={11} />
-            <Tooltip contentStyle={{ background: "#12161A", border: "1px solid #2F3841", borderRadius: 12 }} />
-            <Line isAnimationActive={false} type="monotone" dataKey="maxKg" name="Carga máx. (kg)" stroke="#B6F23C" strokeWidth={2.5} dot={{ r: 3 }} />
-            <Line isAnimationActive={false} type="monotone" dataKey="e1rm" name="1RM estimado (kg)" stroke="#4FC3F7" strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
+            <CartesianGrid stroke={cc.grid} vertical={false} />
+            <XAxis dataKey="label" stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} />
+            <YAxis stroke={cc.axis} tickLine={false} axisLine={false} fontSize={11} />
+            <Tooltip contentStyle={tip(cc)} />
+            <Line isAnimationActive={false} type="monotone" dataKey="maxKg" name="Carga máx. (kg)" stroke={cc.accent} strokeWidth={2.5} dot={{ r: 3 }} />
+            <Line isAnimationActive={false} type="monotone" dataKey="e1rm" name="1RM estimado (kg)" stroke={cc.prot} strokeWidth={1.5} strokeDasharray="4 4" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <p className="text-[11px] text-ink-400">1RM estimado con la fórmula de Epley; es solo un indicador para comparar sesiones.</p>
+      <p className="text-[11px] text-faint">1RM estimado con la fórmula de Epley; es solo un indicador para comparar sesiones.</p>
     </div>
   );
 }
 
-function WorkoutEditor({ open, routines, suggested, workouts, onClose, onSaved }: { open: boolean; routines: Routine[]; suggested: Routine | null; workouts: Workout[]; onClose: () => void; onSaved: () => void }) {
+function WorkoutEditor({ open, weightKg, routines, suggested, workouts, onClose, onSaved }: { open: boolean; weightKg: number; routines: Routine[]; suggested: Routine | null; workouts: Workout[]; onClose: () => void; onSaved: () => void }) {
+  const [kind, setKind] = useState<"fuerza" | "cardio">("fuerza");
+  const [activity, setActivity] = useState("caminata");
+  const [intensity, setIntensity] = useState<Intensity>("moderada");
   const [date, setDate] = useState(isoDate());
   const [routineId, setRoutineId] = useState<string>("");
   const [group, setGroup] = useState("");
@@ -229,7 +260,23 @@ function WorkoutEditor({ open, routines, suggested, workouts, onClose, onSaved }
   const upd = (i: number, patch: Partial<DraftExercise>) => setExercises((a) => a.map((e, k) => (k === i ? { ...e, ...patch } : e)));
   const updSet = (i: number, j: number, patch: Partial<DraftSet>) => upd(i, { sets: exercises[i].sets.map((s, k) => (k === j ? { ...s, ...patch } : s)) });
 
+  const totalSets = exercises.reduce((a, e) => a + e.sets.filter((x) => x.reps !== "").length, 0);
+  const minutes = Number(duration) || (kind === "fuerza" ? estimateStrengthMinutes(totalSets) : 0);
+  const kcal = estimateBurn({ activity: kind === "fuerza" ? "pesas" : activity, intensity, minutes, weightKg });
+
+  async function saveCardio() {
+    setError(null);
+    if (!(Number(duration) > 0 && Number(duration) <= 600)) return setError("Indica los minutos (1–600).");
+    setBusy(true);
+    const a = activityByKey(activity);
+    const r = await supabaseBrowser().from("workouts").insert({ user_id: await uid(), date, kind: "cardio", activity, intensity, muscle_group: a.label, duration_min: Number(duration), kcal_burned: kcal, notes: notes.trim() || null });
+    setBusy(false);
+    if (r.error) return setError(r.error.message);
+    onSaved();
+  }
+
   async function save() {
+    if (kind === "cardio") return saveCardio();
     setError(null);
     if (!group.trim()) return setError("Indica el grupo muscular.");
     const valid = exercises
@@ -242,7 +289,7 @@ function WorkoutEditor({ open, routines, suggested, workouts, onClose, onSaved }
     const sb = supabaseBrowser();
     try {
       const user_id = await uid();
-      const w = await sb.from("workouts").insert({ user_id, date, routine_id: routineId || null, muscle_group: group.trim(), notes: notes.trim() || null, duration_min: duration ? Number(duration) : null }).select("id").single();
+      const w = await sb.from("workouts").insert({ user_id, date, kind: "fuerza", activity: "pesas", intensity, routine_id: routineId || null, muscle_group: group.trim(), notes: notes.trim() || null, duration_min: minutes || null, kcal_burned: kcal }).select("id").single();
       if (w.error) throw w.error;
       for (const [pos, e] of valid.entries()) {
         const ex = await sb.from("workout_exercises").insert({ user_id, workout_id: w.data.id, name: e.name.trim(), position: pos, comment: e.comment.trim() || null }).select("id").single();
@@ -258,17 +305,49 @@ function WorkoutEditor({ open, routines, suggested, workouts, onClose, onSaved }
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title="Registrar entrenamiento">
+    <Sheet open={open} onClose={onClose} title="Registrar actividad">
       <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-2">
-          <Field label="Fecha"><input type="date" className="input" value={date} max={isoDate()} onChange={(e) => setDate(e.target.value)} /></Field>
-          <Field label="Rutina">
-            <select className="input" value={routineId} onChange={(e) => applyRoutine(routines.find((r) => r.id === e.target.value))}>
-              <option value="">Libre</option>
-              {routines.map((r) => <option key={r.id} value={r.id}>{r.name} · {r.muscle_groups}</option>)}
-            </select>
-          </Field>
+        <div className="flex items-center justify-between gap-2">
+          <Segmented value={kind} onChange={setKind} options={[{ value: "fuerza", label: "🏋️ Pesas" }, { value: "cardio", label: "🏃 Cardio" }]} />
+          <input type="date" className="input w-auto py-2" value={date} max={isoDate()} onChange={(e) => setDate(e.target.value)} aria-label="Fecha" />
         </div>
+
+        {kind === "cardio" && (
+          <>
+            <div className="grid grid-cols-3 gap-2">
+              {ACTIVITIES.filter((a) => a.kind === "cardio").map((a) => (
+                <button key={a.key} onClick={() => setActivity(a.key)} className={cn("flex flex-col items-center gap-1 rounded-2xl px-1 py-3 text-center text-[11.5px] leading-tight transition active:scale-95", activity === a.key ? "bg-accent text-on-accent" : "bg-surface-2/70 text-fg")}>
+                  <span className="text-[22px]">{a.emoji}</span>
+                  {a.label}
+                </button>
+              ))}
+            </div>
+            <Field label="Minutos"><input className="input" type="number" inputMode="numeric" value={duration} onChange={(e) => setDuration(e.target.value)} placeholder="30" /></Field>
+          </>
+        )}
+
+        <div>
+          <p className="mb-1.5 text-[12px] font-medium text-muted">Intensidad</p>
+          <Segmented value={intensity} onChange={setIntensity} options={[{ value: "ligera", label: "Ligera" }, { value: "moderada", label: "Moderada" }, { value: "intensa", label: "Intensa" }]} />
+          <p className="mt-1.5 text-[11px] text-faint">{activityByKey(kind === "fuerza" ? "pesas" : activity).hint[intensity]}</p>
+        </div>
+
+        <div className="flex items-center justify-between rounded-2xl bg-glow/15 px-4 py-3">
+          <span className="text-[13px]">🔥 Quemarías aprox.</span>
+          <span className="num text-[24px]">{Math.round(kcal)} <span className="text-[13px] text-muted">kcal</span></span>
+        </div>
+        <p className="-mt-1 text-[11px] leading-relaxed text-faint">
+          Estimación con METs del Compendium of Physical Activities, tu peso ({weightKg} kg) y {minutes || 0} min{kind === "fuerza" && !duration ? " (calculados a ~2.5 min por serie; pon los minutos reales si los sabes)" : ""}. Solo cuenta lo extra sobre tu gasto en reposo.
+        </p>
+
+        {kind === "fuerza" && (
+        <>
+        <Field label="Rutina">
+          <select className="input" value={routineId} onChange={(e) => applyRoutine(routines.find((r) => r.id === e.target.value))}>
+            <option value="">Libre</option>
+            {routines.map((r) => <option key={r.id} value={r.id}>{r.name} · {r.muscle_groups}</option>)}
+          </select>
+        </Field>
         <Field label="Grupo muscular"><input className="input" value={group} onChange={(e) => setGroup(e.target.value)} placeholder="Ej. Glúteos y femorales" /></Field>
 
         {exercises.map((e, i) => (
@@ -277,15 +356,15 @@ function WorkoutEditor({ open, routines, suggested, workouts, onClose, onSaved }
               <input className="input py-1.5 font-semibold" placeholder="Ejercicio" value={e.name} onChange={(ev) => upd(i, { name: ev.target.value })} />
               <button className="rounded-lg p-2 text-fat" aria-label="Quitar ejercicio" onClick={() => setExercises((a) => a.filter((_, k) => k !== i))}><Trash2 className="h-4 w-4" /></button>
             </div>
-            <div className="grid grid-cols-[28px_1fr_1fr_28px] items-center gap-1.5 text-[10px] uppercase tracking-wider text-ink-400">
+            <div className="grid grid-cols-[28px_1fr_1fr_28px] items-center gap-1.5 text-[10px] text-faint">
               <span>#</span><span>Reps</span><span>Peso kg</span><span />
             </div>
             {e.sets.map((s, j) => (
               <div key={j} className="grid grid-cols-[28px_1fr_1fr_28px] items-center gap-1.5">
-                <span className="num text-ink-400">{j + 1}</span>
+                <span className="num text-faint">{j + 1}</span>
                 <input className="input py-1.5" type="number" inputMode="numeric" value={s.reps} onChange={(ev) => updSet(i, j, { reps: ev.target.value })} aria-label="Repeticiones" />
                 <input className="input py-1.5" type="number" inputMode="decimal" value={s.weight} placeholder="0" onChange={(ev) => updSet(i, j, { weight: ev.target.value })} aria-label="Peso" />
-                <button className="text-ink-400" aria-label="Quitar serie" onClick={() => upd(i, { sets: e.sets.filter((_, k) => k !== j) })}>×</button>
+                <button className="text-faint" aria-label="Quitar serie" onClick={() => upd(i, { sets: e.sets.filter((_, k) => k !== j) })}>×</button>
               </div>
             ))}
             <div className="flex gap-2">
@@ -299,8 +378,11 @@ function WorkoutEditor({ open, routines, suggested, workouts, onClose, onSaved }
           <input className="input" placeholder="Notas de la sesión" value={notes} onChange={(e) => setNotes(e.target.value)} />
           <input className="input" type="number" placeholder="Minutos" value={duration} onChange={(e) => setDuration(e.target.value)} />
         </div>
+        </>
+        )}
+        {kind === "cardio" && <input className="input" placeholder="Notas (opcional)" value={notes} onChange={(e) => setNotes(e.target.value)} />}
         {error && <ErrorBox message={error} />}
-        <button className="btn-primary w-full py-3" onClick={save} disabled={busy}>{busy ? <Spinner className="text-ink-950" /> : "Guardar entrenamiento"}</button>
+        <button className="btn-primary w-full py-3" onClick={save} disabled={busy}>{busy ? <Spinner className="text-on-accent" /> : "Guardar"}</button>
       </div>
     </Sheet>
   );
@@ -347,9 +429,9 @@ function Routines({ routines, onChange }: { routines: Routine[]; onChange: () =>
     <div className="space-y-2">
       {routines.map((r) => (
         <button key={r.id} className="card w-full text-left" onClick={() => openEdit(r)}>
-          <p className="label text-lime-400">{r.name}</p>
+          <p className="text-[13px] text-muted">{r.name}</p>
           <p className="h-display text-lg">{r.muscle_groups}</p>
-          <p className="text-[11px] text-ink-400">{r.exercises.map((e) => e.name).join(" · ")}</p>
+          <p className="text-[11px] text-faint">{r.exercises.map((e) => e.name).join(" · ")}</p>
         </button>
       ))}
       <button className="btn-ghost w-full" onClick={() => openEdit(null)}><Plus className="h-4 w-4" /> Nueva rutina</button>
@@ -366,14 +448,14 @@ function Routines({ routines, onChange }: { routines: Routine[]; onChange: () =>
               <input className="input py-1.5" value={e.name} placeholder="Ejercicio" onChange={(ev) => setForm({ ...form, exercises: form.exercises.map((x, k) => (k === i ? { ...x, name: ev.target.value } : x)) })} />
               <input className="input py-1.5" type="number" value={e.sets} onChange={(ev) => setForm({ ...form, exercises: form.exercises.map((x, k) => (k === i ? { ...x, sets: ev.target.value } : x)) })} aria-label="Series" />
               <input className="input py-1.5" type="number" value={e.reps} onChange={(ev) => setForm({ ...form, exercises: form.exercises.map((x, k) => (k === i ? { ...x, reps: ev.target.value } : x)) })} aria-label="Repeticiones" />
-              <button className="text-ink-400" onClick={() => setForm({ ...form, exercises: form.exercises.filter((_, k) => k !== i) })}>×</button>
+              <button className="text-faint" onClick={() => setForm({ ...form, exercises: form.exercises.filter((_, k) => k !== i) })}>×</button>
             </div>
           ))}
           <button className="chip" onClick={() => setForm({ ...form, exercises: [...form.exercises, { name: "", sets: "3", reps: "12" }] })}>+ Ejercicio</button>
           {error && <ErrorBox message={error} />}
           <div className="flex gap-2">
             {edit?.id && <button className="btn-danger" onClick={remove}>Eliminar</button>}
-            <button className="btn-primary flex-1" onClick={save} disabled={busy}>{busy ? <Spinner className="text-ink-950" /> : "Guardar"}</button>
+            <button className="btn-primary flex-1" onClick={save} disabled={busy}>{busy ? <Spinner className="text-on-accent" /> : "Guardar"}</button>
           </div>
         </div>
       </Sheet>
