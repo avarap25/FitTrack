@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-display: "Barlow Condensed", "Inter Variable", system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+html, body { background: #07090A; color: #E9EEF2; }
+body {
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+  background-image:
+    radial-gradient(900px 400px at 100% -10%, rgba(182, 242, 60, 0.08), transparent 60%),
+    radial-gradient(600px 300px at -10% 0%, rgba(61, 224, 160, 0.05), transparent 60%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .card { @apply rounded-2xl border border-ink-700/70 bg-ink-900/80 p-4 backdrop-blur; }
+  .card-tight { @apply rounded-xl border border-ink-700/70 bg-ink-850 p-3; }
+  .label { @apply text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-300; }
+  .num { font-family: var(--font-display); font-variant-numeric: tabular-nums; @apply font-semibold tracking-tight; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none; }
+  .btn-primary { @apply btn bg-lime-400 text-ink-950 hover:bg-lime-500; }
+  .btn-ghost { @apply btn border border-ink-700 bg-ink-850 text-ink-100 hover:bg-ink-800; }
+  .btn-danger { @apply btn border border-fat/40 bg-fat/10 text-fat hover:bg-fat/20; }
+  .input { @apply w-full rounded-xl border border-ink-700 bg-ink-850 px-3 py-2.5 text-sm text-ink-100 placeholder:text-ink-400 outline-none focus:border-lime-400/70 focus:ring-2 focus:ring-lime-400/20; }
+  .chip { @apply inline-flex items-center gap-1 rounded-full border border-ink-700 bg-ink-850 px-3 py-1 text-xs font-medium text-ink-200; }
+  .chip-on { @apply border-lime-400/60 bg-lime-400/10 text-lime-400; }
+  .h-display { font-family: var(--font-display); @apply text-2xl font-bold uppercase tracking-wide; }
+}
+
+.safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
